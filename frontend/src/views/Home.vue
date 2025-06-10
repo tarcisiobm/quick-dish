@@ -15,7 +15,7 @@ const pingServer = async () => {
 
 <template>
   <main>
-    <h1>Hello World</h1>
+    <h1>Hello Frontend</h1>
     <v-btn @click="pingServer">ping</v-btn>
     <div v-if="message">{{ message }}</div>
   </main>
