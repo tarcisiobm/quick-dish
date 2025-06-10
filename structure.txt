@@ -1,0 +1,117 @@
+.
+├── backend
+│   ├── app
+│   │   ├── Http
+│   │   │   └── Controllers
+│   │   ├── Models
+│   │   │   └── User.php
+│   │   └── Providers
+│   │       └── AppServiceProvider.php
+│   ├── artisan
+│   ├── bootstrap
+│   │   ├── app.php
+│   │   ├── cache
+│   │   │   ├── .gitignore
+│   │   │   ├── packages.php
+│   │   │   └── services.php
+│   │   └── providers.php
+│   ├── composer.json
+│   ├── composer.lock
+│   ├── config
+│   │   ├── app.php
+│   │   ├── auth.php
+│   │   ├── cache.php
+│   │   ├── cors.php
+│   │   ├── database.php
+│   │   ├── filesystems.php
+│   │   ├── logging.php
+│   │   ├── mail.php
+│   │   ├── queue.php
+│   │   ├── services.php
+│   │   └── session.php
+│   ├── database
+│   │   ├── database.sqlite
+│   │   ├── factories
+│   │   │   └── UserFactory.php
+│   │   ├── .gitignore
+│   │   ├── migrations
+│   │   │   ├── 0001_01_01_000000_create_users_table.php
+│   │   │   ├── 0001_01_01_000001_create_cache_table.php
+│   │   │   └── 0001_01_01_000002_create_jobs_table.php
+│   │   └── seeders
+│   │       └── DatabaseSeeder.php
+│   ├── .editorconfig
+│   ├── .env
+│   ├── .env.example
+│   ├── .gitattributes
+│   ├── .gitignore
+│   ├── phpunit.xml
+│   ├── public
+│   │   ├── favicon.ico
+│   │   ├── .htaccess
+│   │   └── index.php
+│   ├── README.md
+│   ├── resources
+│   │   └── views
+│   │       └── welcome.blade.php
+│   ├── routes
+│   │   ├── console.php
+│   │   └── web.php
+│   ├── storage
+│   │   ├── app
+│   │   │   ├── .gitignore
+│   │   │   ├── private
+│   │   │   └── public
+│   │   ├── framework
+│   │   │   ├── cache
+│   │   │   ├── .gitignore
+│   │   │   ├── sessions
+│   │   │   ├── testing
+│   │   │   └── views
+│   │   └── logs
+│   │       └── .gitignore
+│   └── tests
+│       ├── Feature
+│       │   └── ExampleTest.php
+│       ├── TestCase.php
+│       └── Unit
+│           └── ExampleTest.php
+├── frontend
+│   ├── .editorconfig
+│   ├── env.d.ts
+│   ├── eslint.config.ts
+│   ├── .gitattributes
+│   ├── .gitignore
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── .prettierrc.json
+│   ├── public
+│   │   └── favicon.ico
+│   ├── README.md
+│   ├── src
+│   │   ├── App.vue
+│   │   ├── assets
+│   │   │   ├── base.css
+│   │   │   ├── logo.svg
+│   │   │   └── main.css
+│   │   ├── main.ts
+│   │   ├── plugins
+│   │   │   ├── axios.ts
+│   │   │   └── vuetify.ts
+│   │   ├── router
+│   │   │   └── index.ts
+│   │   ├── stores
+│   │   │   └── counter.ts
+│   │   └── views
+│   │       ├── Home.vue
+│   │       └── Login.vue
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── package-lock.json
+├── README.md
+└── structure.txt
+
+39 directories, 76 files
