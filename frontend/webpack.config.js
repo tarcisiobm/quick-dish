@@ -65,7 +65,8 @@ export default {
       directory: path.join(__dirname, 'dist')
     },
     port: 3000,
-    hot: true
+    hot: true,
+    open:true,
   }
 };
 
