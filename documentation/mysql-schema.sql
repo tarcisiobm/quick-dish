@@ -29,8 +29,8 @@ CREATE TABLE permissions (
     permission_group_id BIGINT NOT NULL,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255) NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_permissions_permission_group FOREIGN KEY (permission_group_id) REFERENCES permission_groups(id)
 );
@@ -40,8 +40,8 @@ CREATE TABLE profile_permissions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     profile_id BIGINT NOT NULL,
     permission_id BIGINT NOT NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_profile_permissions_profile FOREIGN KEY (profile_id) REFERENCES profiles(id),
     CONSTRAINT fk_profile_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions(id)
@@ -64,10 +64,24 @@ CREATE TABLE users (
     birth_date DATE NULL,
     image_path VARCHAR(255) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_users_profile FOREIGN KEY (profile_id) REFERENCES profiles(id)
+);
+
+CREATE TABLE employees (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE,
+    job_title VARCHAR(150) NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL,
+    hire_date DATE NOT NULL,
+    termination_date DATE NULL,
+    work_schedule VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    CONSTRAINT fk_employees_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- 2.2 system_logs (logs do sistema)
@@ -77,8 +91,8 @@ CREATE TABLE system_logs (
     action VARCHAR(50) NOT NULL,
     old_data JSON NULL,
     new_data JSON NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_system_logs_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -97,8 +111,8 @@ CREATE TABLE addresses (
     reference VARCHAR(255) NULL,
     is_default BOOLEAN NOT NULL DEFAULT FALSE,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -130,8 +144,8 @@ CREATE TABLE items (
     promotional_price DECIMAL(10,2) NULL,
     image_path VARCHAR(255) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_items_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );
@@ -153,8 +167,8 @@ CREATE TABLE item_additionals (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     item_id BIGINT NOT NULL,
     additional_id BIGINT NOT NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_item_additionals_item FOREIGN KEY (item_id) REFERENCES items(id),
     CONSTRAINT fk_item_additionals_additional FOREIGN KEY (additional_id) REFERENCES additionals(id)
@@ -168,15 +182,9 @@ CREATE TABLE item_additionals (
 CREATE TABLE suppliers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
-    cnpj VARCHAR(20) NULL,
+    cnpj VARCHAR(20) NULL UNIQUE,
     phone VARCHAR(20) NULL,
     email VARCHAR(150) NULL,
-    street VARCHAR(255) NULL,
-    number VARCHAR(20) NULL,
-    complement VARCHAR(255) NULL,
-    neighborhood VARCHAR(100) NULL,
-    city VARCHAR(100) NULL,
-    state VARCHAR(50) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -193,7 +201,20 @@ CREATE TABLE unit_measure (
     deleted_at DATETIME NULL
 );
 
--- 4.3 ingredients (ingredientes)
+-- 4.3 
+CREATE TABLE supplier_purchases (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    supplier_id BIGINT NOT NULL,
+    invoice_number VARCHAR(100) NULL,
+    invoice_date DATE NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    CONSTRAINT fk_supplier_purchases_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+
+-- 4.4 ingredients (ingredientes)
 CREATE TABLE ingredients (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     supplier_id BIGINT NOT NULL,
@@ -205,38 +226,38 @@ CREATE TABLE ingredients (
     min_quantity DECIMAL(10,2) NOT NULL,
     max_quantity DECIMAL(10,2) NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_ingredients_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
     CONSTRAINT fk_ingredients_unit_measure FOREIGN KEY (unit_measure_id) REFERENCES unit_measure(id)
 );
 
--- 4.4 item_ingredients (ingredientes dos itens)
+-- 4.5 item_ingredients (ingredientes dos itens)
 CREATE TABLE item_ingredients (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     item_id BIGINT NOT NULL,
     ingredient_id BIGINT NOT NULL,
     quantity DECIMAL(10,2) NOT NULL, 
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_item_ingredients_item FOREIGN KEY (item_id) REFERENCES items(id),
     CONSTRAINT fk_item_ingredients_ingredient FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)
 );
 
--- 4.5 ingredients_movements (movimentações do estoque)
+-- 4.6 ingredients_movements (movimentações do estoque)
 CREATE TABLE ingredients_movements (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     ingredient_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    movement_type VARCHAR(50) NOT NULL,
+    movement_type ENUM('entry', 'exit', 'manual_adjustment') NOT NULL,
     quantity DECIMAL(10,2) NOT NULL,
     previous_quantity DECIMAL(10,2) NOT NULL,
     total_value DECIMAL(10,2) NOT NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_ingredients_movements_ingredient FOREIGN KEY (ingredient_id) REFERENCES ingredients(id),
     CONSTRAINT fk_ingredients_movements_user FOREIGN KEY (user_id) REFERENCES users(id)
@@ -262,8 +283,8 @@ CREATE TABLE order_delivery (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     address_id BIGINT NOT NULL,
     delivery_price DECIMAL(10,2) NOT NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_order_delivery_address FOREIGN KEY (address_id) REFERENCES addresses(id)
 );
@@ -275,7 +296,7 @@ CREATE TABLE orders (
     employee_id BIGINT NOT NULL,
     order_delivery_id BIGINT NULL,
     table_id BIGINT NULL,
-    order_type VARCHAR(50) NOT NULL,
+    order_type ENUM('dine-in', 'delivery', 'takeout') NOT NULL,
     status ENUM('pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled') DEFAULT 'pending' NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
     discount DECIMAL(10,2) NOT NULL,
@@ -287,8 +308,8 @@ CREATE TABLE orders (
     ready_at DATETIME NULL, -- pedido preparado
     delivered_at DATETIME NULL, -- pedido saiu para entrega
     completed_at DATETIME NULL, -- pedido finalizado
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_orders_employee FOREIGN KEY (employee_id) REFERENCES users(id),
@@ -303,11 +324,12 @@ CREATE TABLE order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     item_id BIGINT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL -- historico do valor da unidade do item quando realizou o pedido
     quantity INT NOT NULL, -- quantidade de itens
     total_price DECIMAL(10,2) NOT NULL, -- preço unitario de um item x quantidade
     notes VARCHAR(255),
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id),
     CONSTRAINT fk_order_items_item FOREIGN KEY (item_id) REFERENCES items(id)
@@ -318,10 +340,11 @@ CREATE TABLE order_item_additionals (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_item_id BIGINT NOT NULL,
     additional_id BIGINT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL -- historico do valor da unidade do adicional quando realizou o pedido
     quantity INT NOT NULL, -- quantidade de adicionais
     total_price DECIMAL(10,2) NOT NULL, -- preço unitario de um adicional x quantidade
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_order_item_additionals_order_item FOREIGN KEY (order_item_id) REFERENCES order_items(id),
     CONSTRAINT fk_order_item_additionals_additional FOREIGN KEY (additional_id) REFERENCES additionals(id)
@@ -342,8 +365,8 @@ CREATE TABLE reservations (
     guests_count INT NOT NULL,
     notes VARCHAR(255),
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_reservations_table FOREIGN KEY (table_id) REFERENCES tables(id),
     CONSTRAINT fk_reservations_user FOREIGN KEY (user_id) REFERENCES users(id)
@@ -386,8 +409,8 @@ CREATE TABLE payments (
     amount DECIMAL(10,2) NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 0, -- status de pagamento 1 = Pago | 0 = Não pago
     paid_at DATETIME NULL, -- data de pagamento 
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id),
     CONSTRAINT fk_payments_payment_type FOREIGN KEY (payment_type_id) REFERENCES payment_types(id),
@@ -395,16 +418,111 @@ CREATE TABLE payments (
 );
 
 -- ##############################
--- # 7. BANNERS (Destaques no site)
+-- # 7. REVIEWS (Avaliações - itens do pedido)
 -- ##############################
 
+-- 7.1 reviews (avaliações)
+CREATE TABLE reviews (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment VARCHAR(255) NULL,
+    status TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id),
+);
+
+-- ##############################
+-- # 8. NOTIFICATIONS (Notificações)
+-- ##############################
+
+-- 8.1 notification_method (método de notificação)
+CREATE TABLE notification_method (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL
+);
+
+-- 8.2 notification_type (tipo de notificação)
+CREATE TABLE notification_type (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL UNIQUE, -- (ex: 'new_order', 'low_stock', 'promotion', etc.')
+    description VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL
+);
+
+-- 8.3 notification_preferences (preferências de notificação do usuário)
+CREATE TABLE notification_preferences (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    notification_type_id BIGINT NOT NULL,
+    notification_method_id BIGINT NOT NULL,
+    status TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    CONSTRAINT fk_user_prefs_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_user_prefs_type FOREIGN KEY (notification_type_id) REFERENCES notification_type(id),
+    CONSTRAINT fk_user_prefs_method FOREIGN KEY (notification_method_id) REFERENCES notification_method(id)
+);
+
+-- 8.4 notification (registro de notificações)
+CREATE TABLE notification (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    notification_type_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    link VARCHAR(255) NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    sent_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_notifications_notification_type FOREIGN KEY (notification_type_id) REFERENCES notification_type(id)
+);
+
+-- ##############################
+-- # 9. Accounts payable (Contas a pagar)
+-- ##############################
+
+-- 9.1 accounts_payable (contas a pagar)
+CREATE TABLE accounts_payable (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    employee_id BIG INT NULL,
+    purchase_id BIG INT NULL,
+    payable_id BIGINT NOT NULL -- id da origem (ex: employee_id ou purchase_id),
+    payable_type VARCHAR(255) NOT NULL, -- tipo de pagamento (ex: 'employee', 'purchase')
+    description VARCHAR(255) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    due_date DATE NOT NULL,
+    paid_at DATETIME NULL,
+    status ENUM('pending', 'paid', 'overdue') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL
+);
+
+-- ##############################
+-- # 10. BANNERS (Destaques no site)
+-- ##############################
+
+-- 10.1 banners (registro de notificações)
 CREATE TABLE banners (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     subtitle VARCHAR(255) NULL,
     description VARCHAR(255),
     image_path VARCHAR(255) NULL,
-    `order` INT NOT NULL DEFAULT 0,
+    link VARCHAR(255) NULL,
+    display_order INT NOT NULL DEFAULT 0,
     start_date DATE NULL,
     end_date DATE NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
@@ -414,11 +532,63 @@ CREATE TABLE banners (
 );
 
 -- ##############################
--- # Indíces para acesso
+-- # Indexes (Índices)
 -- ##############################
 
+-- ## Groups and Permissions
+CREATE INDEX idx_permissions_permission_group_id ON permissions(permission_group_id);
+CREATE INDEX idx_profile_permissions_profile_id ON profile_permissions(profile_id);
+CREATE INDEX idx_profile_permissions_permission_id ON profile_permissions(permission_id);
+
+-- ## Users and Logs
+CREATE INDEX idx_users_profile_id ON users(profile_id);
+CREATE INDEX idx_system_logs_user_id ON system_logs(user_id);
+CREATE INDEX idx_addresses_addressable ON addresses(addressable_id, addressable_type);
+
+-- ## Menu
+CREATE INDEX idx_items_category_id ON items(category_id);
+CREATE INDEX idx_item_additionals_item_id ON item_additionals(item_id);
+CREATE INDEX idx_item_additionals_additional_id ON item_additionals(additional_id);
+
+-- ## Suppliers and Ingredients
+CREATE INDEX idx_ingredients_supplier_id ON ingredients(supplier_id);
+CREATE INDEX idx_ingredients_unit_measure_id ON ingredients(unit_measure_id);
+CREATE INDEX idx_item_ingredients_item_id ON item_ingredients(item_id);
+CREATE INDEX idx_item_ingredients_ingredient_id ON item_ingredients(ingredient_id);
+CREATE INDEX idx_ingredients_movements_ingredient_id ON ingredients_movements(ingredient_id);
+CREATE INDEX idx_ingredients_movements_user_id ON ingredients_movements(user_id);
+
+-- ## Orders and Tables
+CREATE INDEX idx_order_delivery_address_id ON order_delivery(address_id);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_employee_id ON orders(employee_id);
+CREATE INDEX idx_orders_order_delivery_id ON orders(order_delivery_id);
+CREATE INDEX idx_orders_table_id ON orders(table_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_order_date ON orders(order_date);
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_items_category_id ON items(category_id);
+
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_item_id ON order_items(item_id);
+CREATE INDEX idx_order_item_additionals_order_item_id ON order_item_additionals(order_item_id);
+CREATE INDEX idx_order_item_additionals_additional_id ON order_item_additionals(additional_id);
+
+-- ## Reservations and Payments
+CREATE INDEX idx_reservations_table_id ON reservations(table_id);
+CREATE INDEX idx_reservations_user_id ON reservations(user_id);
+CREATE INDEX idx_payments_order_id ON payments(order_id);
+CREATE INDEX idx_payments_payment_type_id ON payments(payment_type_id);
+CREATE INDEX idx_payments_coupon_id ON payments(coupon_id);
+
+-- ## Reviews
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+CREATE INDEX idx_reviews_order_id ON reviews(order_id);
+CREATE INDEX idx_reviews_item_id ON reviews(item_id);
+
+-- ## Notifications
+CREATE INDEX idx_notification_settings_user_id ON notification_settings(user_id);
+CREATE INDEX idx_notification_settings_method_id ON notification_settings(notification_method_id);
+CREATE INDEX idx_notification_user_id ON notification(user_id);
+CREATE INDEX idx_notification_type_id ON notification(notification_type_id);
+
+-- ## Payments
+CREATE INDEX idx_accounts_payable_payable ON accounts_payable(payable_id, payable_type);
