@@ -1,3 +1,6 @@
+CREATE DATABASE schema_restaurante;
+USE schema_restaurante;
+
 -- ##############################
 -- # 1. GRUPOS E PERMISSÕES
 -- ##############################
@@ -230,7 +233,7 @@ CREATE TABLE ingredients (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_ingredients_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
-    CONSTRAINT fk_ingredients_unit_measure FOREIGN KEY (unit_measure_id) REFERENCES unit_measure(id)
+    CONSTRAINT fk_ingredients_unit_measure FOREIGN KEY (unit_measure_id) REFERENCES unit_measures(id)
 );
 
 -- 4.5 item_ingredients (ingredientes dos itens)
@@ -324,7 +327,7 @@ CREATE TABLE order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     item_id BIGINT NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL -- historico do valor da unidade do item quando realizou o pedido
+    unit_price DECIMAL(10,2) NOT NULL, -- historico do valor da unidade do item quando realizou o pedido
     quantity INT NOT NULL, -- quantidade de itens
     total_price DECIMAL(10,2) NOT NULL, -- preço unitario de um item x quantidade
     notes VARCHAR(255),
@@ -340,7 +343,7 @@ CREATE TABLE order_item_additionals (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_item_id BIGINT NOT NULL,
     additional_id BIGINT NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL -- historico do valor da unidade do adicional quando realizou o pedido
+    unit_price DECIMAL(10,2) NOT NULL, -- historico do valor da unidade do adicional quando realizou o pedido
     quantity INT NOT NULL, -- quantidade de adicionais
     total_price DECIMAL(10,2) NOT NULL, -- preço unitario de um adicional x quantidade
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -431,14 +434,14 @@ CREATE TABLE reviews (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
-    CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- ##############################
 -- # 8. NOTIFICATIONS (Notificações)
 -- ##############################
 
--- 8.1 notification_method (método de notificação)
+-- 8.1 notification_methods (método de notificação)
 CREATE TABLE notification_methods (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE,
@@ -447,7 +450,7 @@ CREATE TABLE notification_methods (
     deleted_at DATETIME NULL
 );
 
--- 8.2 notification_type (tipo de notificação)
+-- 8.2 notification_types (tipo de notificação)
 CREATE TABLE notification_types (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE, -- (ex: 'new_order', 'low_stock', 'promotion', etc.')
@@ -457,22 +460,22 @@ CREATE TABLE notification_types (
     deleted_at DATETIME NULL
 );
 
--- 8.3 notification_preferences (preferências de notificação do usuário)
-CREATE TABLE notification_preferences (
+-- 8.3 notification_settings (configurações de notificação do usuário)
+CREATE TABLE notification_settings (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    notification_type_id BIGINT NOT NULL,
+    notification_types_id BIGINT NOT NULL,
     notification_method_id BIGINT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_user_prefs_user FOREIGN KEY (user_id) REFERENCES users(id),
-    CONSTRAINT fk_user_prefs_type FOREIGN KEY (notification_type_id) REFERENCES notification_type(id),
-    CONSTRAINT fk_user_prefs_method FOREIGN KEY (notification_method_id) REFERENCES notification_method(id)
+    CONSTRAINT fk_user_prefs_type FOREIGN KEY (notification_types_id) REFERENCES notification_types(id),
+    CONSTRAINT fk_user_prefs_method FOREIGN KEY (notification_method_id) REFERENCES notification_methods(id)
 );
 
--- 8.4 notification (registro de notificações)
+-- 8.4 notifications (registro de notificações)
 CREATE TABLE notifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -486,7 +489,7 @@ CREATE TABLE notifications (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
     CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id),
-    CONSTRAINT fk_notifications_notification_type FOREIGN KEY (notification_type_id) REFERENCES notification_type(id)
+    CONSTRAINT fk_notifications_notification_type FOREIGN KEY (notification_type_id) REFERENCES notification_types(id)
 );
 
 -- ##############################
@@ -496,9 +499,9 @@ CREATE TABLE notifications (
 -- 9.1 accounts_payable (contas a pagar)
 CREATE TABLE accounts_payable (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employee_id BIG INT NULL,
-    purchase_id BIG INT NULL,
-    payable_id BIGINT NOT NULL -- id da origem (ex: employee_id ou purchase_id),
+    employee_id BIGINT NULL,
+    purchase_id BIGINT NULL,
+    payable_id BIGINT NOT NULL, -- id da origem (ex: employee_id ou purchase_id),
     payable_type VARCHAR(255) NOT NULL, -- tipo de pagamento (ex: 'employee', 'purchase')
     description VARCHAR(255) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
@@ -543,7 +546,6 @@ CREATE INDEX idx_profile_permissions_permission_id ON profile_permissions(permis
 -- ## Users and Logs
 CREATE INDEX idx_users_profile_id ON users(profile_id);
 CREATE INDEX idx_system_logs_user_id ON system_logs(user_id);
-CREATE INDEX idx_addresses_addressable ON addresses(addressable_id, addressable_type);
 
 -- ## Menu
 CREATE INDEX idx_items_category_id ON items(category_id);
@@ -581,14 +583,12 @@ CREATE INDEX idx_payments_coupon_id ON payments(coupon_id);
 
 -- ## Reviews
 CREATE INDEX idx_reviews_user_id ON reviews(user_id);
-CREATE INDEX idx_reviews_order_id ON reviews(order_id);
-CREATE INDEX idx_reviews_item_id ON reviews(item_id);
 
 -- ## Notifications
 CREATE INDEX idx_notification_settings_user_id ON notification_settings(user_id);
 CREATE INDEX idx_notification_settings_method_id ON notification_settings(notification_method_id);
-CREATE INDEX idx_notification_user_id ON notification(user_id);
-CREATE INDEX idx_notification_type_id ON notification(notification_type_id);
+CREATE INDEX idx_notification_user_id ON notifications(user_id);
+CREATE INDEX idx_notification_type_id ON notifications(notification_type_id);
 
 -- ## Payments
 CREATE INDEX idx_accounts_payable_payable ON accounts_payable(payable_id, payable_type);
