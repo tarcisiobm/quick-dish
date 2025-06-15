@@ -191,8 +191,8 @@ CREATE TABLE suppliers (
     deleted_at DATETIME NULL
 );
 
--- 4.2 unit_measure (unidades de medida)
-CREATE TABLE unit_measure (
+-- 4.2 unit_measures (unidades de medida)
+CREATE TABLE unit_measures (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     abbreviation VARCHAR(15) NULL,
@@ -439,7 +439,7 @@ CREATE TABLE reviews (
 -- ##############################
 
 -- 8.1 notification_method (método de notificação)
-CREATE TABLE notification_method (
+CREATE TABLE notification_methods (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -448,7 +448,7 @@ CREATE TABLE notification_method (
 );
 
 -- 8.2 notification_type (tipo de notificação)
-CREATE TABLE notification_type (
+CREATE TABLE notification_types (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE, -- (ex: 'new_order', 'low_stock', 'promotion', etc.')
     description VARCHAR(255) NULL,
@@ -473,7 +473,7 @@ CREATE TABLE notification_preferences (
 );
 
 -- 8.4 notification (registro de notificações)
-CREATE TABLE notification (
+CREATE TABLE notifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     notification_type_id BIGINT NOT NULL,
