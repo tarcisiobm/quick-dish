@@ -1,5 +1,5 @@
-CREATE DATABASE schema_restaurante;
-USE schema_restaurante;
+CREATE DATABASE schema_quick_dish;
+USE schema_quick_dish;
 
 -- ##############################
 -- # 1. GRUPOS E PERMISSÕES

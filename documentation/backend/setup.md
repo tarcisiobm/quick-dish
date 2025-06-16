@@ -29,7 +29,7 @@
       DB_CONNECTION=mysql
       DB_HOST=127.0.0.1
       DB_PORT=3306
-      DB_DATABASE=restaurante
+      DB_DATABASE=quick_dish
       DB_USERNAME=root
       DB_PASSWORD=
 
