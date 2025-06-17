@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-
   "scripts": {
     "dev": "webpack serve --config webpack.config.js",
     "build": "webpack --config webpack.config.js",
@@ -16,6 +15,7 @@
     "axios": "^1.9.0",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
+    "vue-i18n": "^11.1.6",
     "vue-router": "^4.5.0",
     "vuetify": "^3.8.8"
   },
