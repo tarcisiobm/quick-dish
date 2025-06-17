@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
+import api from '@/plugins/axios';
+
+interface UserData {
+  email: string,
+  password: string,
+}
+
+const login = (data: UserData) => {
+  api.post('/login', data);
+}
 </script>
 
 <template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
+import snackbar from '@/components/snackbar.vue';
 </script>
 
 <template>
@@ -17,6 +18,7 @@ import { RouterLink, RouterView } from 'vue-router'
     <v-main>
         <RouterView />
     </v-main>
+    <snackbar></snackbar>
   </v-app>
 </template>
 
