@@ -7,7 +7,7 @@ USE schema_quick_dish;
 
 -- 1.1 permission_groups (grupos de permissões)
 CREATE TABLE permission_groups (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255) NULL,
     created_at DATETIME NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE permission_groups (
 
 -- 1.2 profiles (perfis)
 CREATE TABLE profiles (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
@@ -28,8 +28,8 @@ CREATE TABLE profiles (
 
 -- 1.3 permissions (permissões)
 CREATE TABLE permissions (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    permission_group_id BIGINT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    permission_group_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -40,9 +40,9 @@ CREATE TABLE permissions (
 
 -- 1.4 profile_permissions (permissões dos perfis)
 CREATE TABLE profile_permissions (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    profile_id BIGINT NOT NULL,
-    permission_id BIGINT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    profile_id INT NOT NULL,
+    permission_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
@@ -60,11 +60,11 @@ CREATE TABLE users (
     name VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     email_verified_at DATETIME NULL,
-    profile_id BIGINT NOT NULL,
+    profile_id INT NOT NULL,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NULL,
-    cpf CHAR(11) NULL UNIQUE,
-    birth_date DATE NULL,
+    -- cpf CHAR(11) NULL UNIQUE,
+    -- birth_date DATE NULL,
     image_path VARCHAR(255) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -74,7 +74,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE employees (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE,
     job_title VARCHAR(150) NOT NULL,
     salary DECIMAL(10, 2) NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE addresses (
 
 -- 3.1 categories (categorias do menu)
 CREATE TABLE categories (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255) NULL,
     image_path VARCHAR(255) NULL,
@@ -139,8 +139,8 @@ CREATE TABLE categories (
 
 -- 3.2 items (itens do menu)
 CREATE TABLE items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    category_id BIGINT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255),
     price DECIMAL(10,2) NOT NULL,
@@ -155,7 +155,7 @@ CREATE TABLE items (
 
 -- 3.3 additionals (adicionais)
 CREATE TABLE additionals (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255),
     price DECIMAL(10,2) NOT NULL,
@@ -167,9 +167,9 @@ CREATE TABLE additionals (
 
 -- 3.4 item_additionals (adicionais de itens)
 CREATE TABLE item_additionals (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    item_id BIGINT NOT NULL,
-    additional_id BIGINT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    additional_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
@@ -183,7 +183,7 @@ CREATE TABLE item_additionals (
 
 -- 4.1 suppliers (fornecedores)
 CREATE TABLE suppliers (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     cnpj VARCHAR(20) NULL UNIQUE,
     phone VARCHAR(20) NULL,
@@ -196,7 +196,7 @@ CREATE TABLE suppliers (
 
 -- 4.2 unit_measures (unidades de medida)
 CREATE TABLE unit_measures (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     abbreviation VARCHAR(15) NULL,
     created_at DATETIME NOT NULL,
@@ -207,7 +207,7 @@ CREATE TABLE unit_measures (
 -- 4.3 
 CREATE TABLE supplier_purchases (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    supplier_id BIGINT NOT NULL,
+    supplier_id INT NOT NULL,
     invoice_number VARCHAR(100) NULL,
     invoice_date DATE NOT NULL,
     total_amount DECIMAL(10, 2) NOT NULL,
@@ -219,9 +219,9 @@ CREATE TABLE supplier_purchases (
 
 -- 4.4 ingredients (ingredientes)
 CREATE TABLE ingredients (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    supplier_id BIGINT NOT NULL,
-    unit_measure_id BIGINT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    supplier_id INT NOT NULL,
+    unit_measure_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255),
     unit_price DECIMAL(10,2) NOT NULL,
@@ -238,9 +238,9 @@ CREATE TABLE ingredients (
 
 -- 4.5 item_ingredients (ingredientes dos itens)
 CREATE TABLE item_ingredients (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    item_id BIGINT NOT NULL,
-    ingredient_id BIGINT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    ingredient_id INT NOT NULL,
     quantity DECIMAL(10,2) NOT NULL, 
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -253,7 +253,7 @@ CREATE TABLE item_ingredients (
 -- 4.6 ingredients_movements (movimentações do estoque)
 CREATE TABLE ingredients_movements (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    ingredient_id BIGINT NOT NULL,
+    ingredient_id INT NOT NULL,
     user_id BIGINT NOT NULL,
     movement_type ENUM('entry', 'exit', 'manual_adjustment') NOT NULL,
     quantity DECIMAL(10,2) NOT NULL,
@@ -272,9 +272,9 @@ CREATE TABLE ingredients_movements (
 
 -- 5.1 tables (mesas)
 CREATE TABLE tables (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     number INT NOT NULL,
-    capacity INT NOT NULL,
+    capacity TINYINT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -320,13 +320,11 @@ CREATE TABLE orders (
     CONSTRAINT fk_orders_table FOREIGN KEY (table_id) REFERENCES tables(id)
 );
 
-
-
 -- 5.4 order_items (itens dos pedidos)
 CREATE TABLE order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
-    item_id BIGINT NOT NULL,
+    item_id INT NOT NULL,
     unit_price DECIMAL(10,2) NOT NULL, -- historico do valor da unidade do item quando realizou o pedido
     quantity INT NOT NULL, -- quantidade de itens
     total_price DECIMAL(10,2) NOT NULL, -- preço unitario de um item x quantidade
@@ -342,7 +340,7 @@ CREATE TABLE order_items (
 CREATE TABLE order_item_additionals (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_item_id BIGINT NOT NULL,
-    additional_id BIGINT NOT NULL,
+    additional_id INT NOT NULL,
     unit_price DECIMAL(10,2) NOT NULL, -- historico do valor da unidade do adicional quando realizou o pedido
     quantity INT NOT NULL, -- quantidade de adicionais
     total_price DECIMAL(10,2) NOT NULL, -- preço unitario de um adicional x quantidade
@@ -360,7 +358,7 @@ CREATE TABLE order_item_additionals (
 -- 6.1 reservations (reservas)
 CREATE TABLE reservations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    table_id BIGINT NOT NULL,
+    table_id INT NOT NULL,
     user_id BIGINT NOT NULL,
     reservation_date DATE NOT NULL,
     start_time TIME NOT NULL,
@@ -377,7 +375,7 @@ CREATE TABLE reservations (
 
 -- 6.2 payment_types (tipos de pagamento)
 CREATE TABLE payment_types (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL,
@@ -387,7 +385,7 @@ CREATE TABLE payment_types (
 
 -- 6.3 coupons (cupons)
 CREATE TABLE coupons (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(255),
     discount_type ENUM('percentage', 'fixed') NOT NULL, -- desconto fixo ou percentual
@@ -407,8 +405,8 @@ CREATE TABLE coupons (
 CREATE TABLE payments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
-    payment_type_id BIGINT NOT NULL,
-    coupon_id BIGINT NULL,
+    payment_type_id INT NOT NULL,
+    coupon_id INT NULL,
     amount DECIMAL(10,2) NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 0, -- status de pagamento 1 = Pago | 0 = Não pago
     paid_at DATETIME NULL, -- data de pagamento 
@@ -428,7 +426,7 @@ CREATE TABLE payments (
 CREATE TABLE reviews (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    rating TINYINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment VARCHAR(255) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -443,7 +441,7 @@ CREATE TABLE reviews (
 
 -- 8.1 notification_methods (método de notificação)
 CREATE TABLE notification_methods (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -452,7 +450,7 @@ CREATE TABLE notification_methods (
 
 -- 8.2 notification_types (tipo de notificação)
 CREATE TABLE notification_types (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE, -- (ex: 'new_order', 'low_stock', 'promotion', etc.')
     description VARCHAR(255) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -462,10 +460,10 @@ CREATE TABLE notification_types (
 
 -- 8.3 notification_settings (configurações de notificação do usuário)
 CREATE TABLE notification_settings (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    notification_types_id BIGINT NOT NULL,
-    notification_method_id BIGINT NOT NULL,
+    notification_types_id INT NOT NULL,
+    notification_method_id INT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -479,7 +477,7 @@ CREATE TABLE notification_settings (
 CREATE TABLE notifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    notification_type_id BIGINT NOT NULL,
+    notification_type_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     message VARCHAR(255) NOT NULL,
     link VARCHAR(255) NULL,
@@ -499,7 +497,7 @@ CREATE TABLE notifications (
 -- 9.1 accounts_payable (contas a pagar)
 CREATE TABLE accounts_payable (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employee_id BIGINT NULL,
+    employee_id INT NULL,
     purchase_id BIGINT NULL,
     payable_id BIGINT NOT NULL, -- id da origem (ex: employee_id ou purchase_id),
     payable_type VARCHAR(255) NOT NULL, -- tipo de pagamento (ex: 'employee', 'purchase')
@@ -519,7 +517,7 @@ CREATE TABLE accounts_payable (
 
 -- 10.1 banners (registro de notificações)
 CREATE TABLE banners (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     subtitle VARCHAR(255) NULL,
     description VARCHAR(255),
