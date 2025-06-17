@@ -24,6 +24,7 @@ const login = (data: UserData) => {
         <v-checkbox :label="t('rememberMe')"></v-checkbox>
         <RouterLink to="/forgot-password">{{ t('forgotPassword') }}</RouterLink>
       </div>
+      <p>{{ t('orLoginWith') }}</p>
       <v-btn class="w-100">{{ t('login') }}</v-btn>
     </v-form>
   </div>

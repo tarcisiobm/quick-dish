@@ -24,6 +24,16 @@ const profilePicture: LocaleType ={
   continueWithoutPhoto: 'Continue without a photo',
 }
 
+// Log-in
+
+const login: LocaleType = {
+  login: 'Login',
+  welcomeBack: 'Welcome back',
+  rememberMe: 'Remember me',
+  forgotPassword: 'Forgot your password?',
+  orLoginWith: 'Or login with',
+}
+
 const recoverPassword: LocaleType = {
   recoverPassword: 'Recover Password',
   enterEmail: 'Enter your email to reset your password',
@@ -37,22 +47,12 @@ const createNewPassword: LocaleType = {
   submit: 'Submit'
 }
 
-// Log-in
-
-const login: LocaleType = {
-  login: 'Login',
-  welcomeBack: 'Welcome back',
-  rememberMe: 'Remember me',
-  forgotPassword: 'Forgot your password?',
-  orLoginWith: 'Or login with',
-}
-
 const en: LocaleType = {
 ...signUp,
 ...profilePicture,
+...login,
 ...recoverPassword,
 ...createNewPassword,
-...login
 }
 
 export default en;
