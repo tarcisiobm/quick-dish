@@ -63,8 +63,6 @@ CREATE TABLE users (
     profile_id BIGINT NOT NULL,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NULL,
-    -- cpf CHAR(11) NULL UNIQUE,
-    -- birth_date DATE NULL,
     image_path VARCHAR(255) NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

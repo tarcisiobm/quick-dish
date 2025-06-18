@@ -4,7 +4,7 @@ import router from './router';
 import { createPinia } from 'pinia';
 import vuetify from './plugins/vuetify';
 import { createI18n } from 'vue-i18n';
-import locales from '@/locales/index';
+import locales from '@/locales/i18n';
 
 const i18n = createI18n({
   legacy: false,

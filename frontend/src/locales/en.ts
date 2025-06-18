@@ -1,4 +1,24 @@
-import type { LocaleType } from '@/locales/index';
+import type { LocaleType } from '@/locales/i18n';
+
+// Rules
+
+const rules: LocaleType = {
+  requiredField: "Required field.",
+  invalidEmail: "Invalid email.",
+  minimumLenghtNotMet: "Minimum length not met.",
+  differentPasswords: "Different passwords."
+}
+
+const snackbar: LocaleType = {
+  pleaseFillOutAllRequiredFields: "Please fill out all required fields.",
+  accountCreatedSuccessfully: "Account created successfully.",
+  errorCreatingAccount: "Error creating account.",
+  loginSuccessful: "Logged in successfully.",
+  loginFailed: "Login failed.",
+  logoutSuccessful: "Logged out successfully.",
+  invalidCredentials: "Invalid email or password.",
+  sessionExpired: "Session expired. Please log in again.",
+}
 
 // Sign-up
 
@@ -48,6 +68,8 @@ const createNewPassword: LocaleType = {
 }
 
 const en: LocaleType = {
+...snackbar,
+...rules,
 ...signUp,
 ...profilePicture,
 ...login,

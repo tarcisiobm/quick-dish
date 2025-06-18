@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 import snackbar from '@/components/snackbar.vue';
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
+import appbar from './components/appbar.vue';
+
+const auth = useAuthStore();
+const { t } = useI18n()
+
+onMounted(() => {
+  auth.initializeAuth()
+})
 </script>
 
 <template>
   <v-app>
-    <v-app-bar app>
-      <div class="wrapper">
-        <nav class="d-flex align-baseline">
-          <v-btn variant="text" to="/" class="mr-2">Home</v-btn>
-          <v-btn variant="text" to="/login">Login</v-btn>
-          <v-btn variant="text" to="/signup">Sign-Up</v-btn>
-        </nav>
-      </div>
-    </v-app-bar>
-
+    <appbar></appbar>
     <v-main>
         <RouterView />
     </v-main>
