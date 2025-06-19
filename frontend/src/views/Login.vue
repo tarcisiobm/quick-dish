@@ -27,6 +27,11 @@ const login = async (): Promise<void> => {
     }, rememberMe.value
   )
 }
+
+const loginProvider = async (provider: string): Promise<void> => {
+  await auth.authenticateProvider(provider);
+}
+
 </script>
 
 <template>
@@ -70,6 +75,9 @@ const login = async (): Promise<void> => {
         {{ t('login') }}
       </v-btn>
       <p>{{ t('orLoginWith') }}</p>
+      <v-btn @click="loginProvider('google')">Google</v-btn>
+      <v-btn @click="loginProvider('facebook')">Facebook</v-btn>
+
     </v-form>
   </div>
 </template>

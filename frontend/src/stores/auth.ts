@@ -17,7 +17,7 @@ export interface AuthData {
   created_at: string
 }
 
-export interface LoginCredentials {
+export interface LoginData {
   email: string
   password: string
 }
@@ -35,14 +35,19 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthData | null>(null)
   const token = ref<string | null>(null)
   const snackbar = useSnackbarStore()
+  const authWindow = ref<Window | null>(null)
 
   const isAuthenticated = computed((): boolean => Boolean(token.value && user.value))
 
-  const authenticate = (userData: AuthData, userToken: string, rememberUser: boolean=true): void => {
+  const authenticate = (
+    userData: AuthData,
+    userToken: string,
+    rememberUser: boolean = true,
+  ): void => {
     if (userData && userToken) {
-      user.value = userData;
-      token.value = userToken;
-      if(rememberUser){
+      user.value = userData
+      token.value = userToken
+      if (rememberUser) {
         localStorage.setItem('auth_user', JSON.stringify(userData))
         localStorage.setItem('auth_token', userToken)
       }
@@ -60,8 +65,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getCurrentUser = async (): Promise<void> => {
     try {
-      const response: any = await api.get('/user')
-      user.value = response.data;
+      const response: any = await api.get('/auth/user')
+      user.value = response.data
       localStorage.setItem('auth_user', JSON.stringify(response.data))
     } catch (err) {
       console.error(err)
@@ -73,10 +78,8 @@ export const useAuthStore = defineStore('auth', () => {
   const initializeAuth = (): void => {
     const savedToken = localStorage.getItem('auth_token')
     const savedUser = localStorage.getItem('auth_user')
-    console.log('inicializando')
     if (savedToken && savedUser) {
       try {
-        console.log(savedToken, savedUser);
         token.value = savedToken
         user.value = JSON.parse(savedUser)
         api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
@@ -90,21 +93,21 @@ export const useAuthStore = defineStore('auth', () => {
 
   const register = async (data: RegisterData): Promise<void> => {
     try {
-      const response = await api.post('/sign-up', data)
+      const response = await api.post('/auth/sign-up', data)
       authenticate(response.data.user, response.data.token)
-      router.push('/');
-      snackbar.success(t('accountCreatedSuccessfully'));
+      router.push('/')
+      snackbar.success(t('accountCreatedSuccessfully'))
     } catch (err) {
       snackbar.error(t('errorCreatingAccount'))
       console.error(err)
     }
   }
 
-  const login = async (credentials: LoginCredentials, rememberUser: boolean): Promise<void> => {
+  const login = async (data: LoginData, rememberUser: boolean): Promise<void> => {
     try {
-      const response = await api.post('/login', credentials)
+      const response = await api.post('/auth/login', data)
       authenticate(response.data.user, response.data.token, rememberUser)
-      router.push('/');
+      router.push('/')
       snackbar.success(t('loginSuccessful'))
     } catch (err) {
       snackbar.error(t('loginFailed'))
@@ -115,7 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async (): Promise<void> => {
     try {
       if (token.value) {
-        await api.post('/logout')
+        await api.post('/auth/logout')
       }
     } catch (err) {
       console.error(err)
@@ -124,6 +127,58 @@ export const useAuthStore = defineStore('auth', () => {
       router.push('/login')
       snackbar.success(t('logoutSuccessful'))
     }
+  }
+
+  const authenticateProvider = async (provider: string): Promise<void> => {
+    try {
+      const w = 600
+      const h = 600
+      const response = await api.get(`/auth/${provider}/redirect`)
+      const redirectUrl = response.data.redirect_url
+      const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+      const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+      const width = window.innerWidth
+        ? window.innerWidth
+        : document.documentElement.clientWidth
+          ? document.documentElement.clientWidth
+          : screen.width
+      const height = window.innerHeight
+        ? window.innerHeight
+        : document.documentElement.clientHeight
+          ? document.documentElement.clientHeight
+          : screen.height
+
+      const systemZoom = width / window.screen.availWidth
+      const left = (width - w) / 2 / systemZoom + dualScreenLeft
+      const top = (height - h) / 2 / systemZoom + dualScreenTop
+      authWindow.value = window.open(
+        redirectUrl,
+        'Authentication',
+        `
+      scrollbars=yes,
+      width=${w / systemZoom},
+      height=${h / systemZoom},
+      top=${top},
+      left=${left}
+      `,
+      )
+    } catch (err) {
+      snackbar.error(t('failedAuthentication'))
+      console.error(err)
+    }
+  }
+
+  const handleAuthMessage = (event: any) => {
+    if (event.origin !== 'http://localhost:3100') return
+    const { status, token, user } = event.data
+
+    if (status === 'success') {
+      authenticate(user, token, true)
+      return
+    }
+    if (authWindow.value) authWindow.value.close()
+    window.removeEventListener('message', handleAuthMessage)
   }
 
   return {
@@ -137,5 +192,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     logout,
+    authenticateProvider,
+    handleAuthMessage,
   }
 })

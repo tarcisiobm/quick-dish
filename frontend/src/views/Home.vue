@@ -5,7 +5,6 @@ const message = ref('');
 const pingServer = async () => {
   try {
     const response = await api.get('/ping');
-    console.log(response);
     message.value = response.data.message
   } catch (error) {
     console.error('erro na requisição:', error);
