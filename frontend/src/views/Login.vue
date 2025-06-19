@@ -11,7 +11,7 @@ const auth = useAuthStore()
 
 const email = ref<string>('')
 const password = ref<string>('')
-const rememberMe = ref<boolean>(false)
+const rememberMe = ref<boolean>(true)
 const showPassword = ref<boolean>(false)
 const form = ref<boolean>(false)
 
@@ -63,13 +63,13 @@ const login = async (): Promise<void> => {
         <!-- <RouterLink to="/forgot-password">{{ t('forgotPassword') }}</RouterLink> -->
       </div>
 
-      <p>{{ t('orLoginWith') }}</p>
       <v-btn
         :disabled="!form"
         @click="login"
         class="w-100">
         {{ t('login') }}
       </v-btn>
+      <p>{{ t('orLoginWith') }}</p>
     </v-form>
   </div>
 </template>

@@ -18,6 +18,16 @@ const router = createRouter({
       name: 'signup',
       component: () => import('../views/SignUp.vue'),
     },
+    {
+      path: '/email-verified',
+      name: 'emailverified',
+      component: () => import('../views/Email-verified.vue'),
+    },
+    {
+      path: '/404',
+      name: '404',
+      component: () => import('../views/404.vue'),
+    }
   ],
 })
 
