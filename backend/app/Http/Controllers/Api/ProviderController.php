@@ -31,7 +31,6 @@ class ProviderController extends Controller
 
     public function handleProviderCallback(string $provider)
     {
-        Log::info('handleProviderCallback');
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
             $user = User::where('email', $socialUser->getEmail())->first();
@@ -46,7 +45,6 @@ class ProviderController extends Controller
             $updatedUser = $this->updateOrCreateFromSocialite($user, $provider, $socialUser);
             $updatedUser->currentAccessToken()?->delete();
 
-            Log::info('redirecionando');
             $token = $updatedUser->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
             return view('social-callback', [
                 'status' => 'success',
@@ -54,7 +52,6 @@ class ProviderController extends Controller
                 'user' => $updatedUser->toJson()
             ]);
         } catch (\Exception $e) {
-            Log::info('handleProviderCallback', ['error' => $e]);
             return view('social-callback', [
                 'status' => 'error',
                 'error' => $e->getMessage()
