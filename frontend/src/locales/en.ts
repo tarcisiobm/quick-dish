@@ -1,13 +1,17 @@
 import type { LocaleType } from '@/locales/i18n';
 
-// Rules
+// Api Exceptions
 
-const rules: LocaleType = {
-  requiredField: "Required field.",
-  invalidEmail: "Invalid email.",
-  minimumLenghtNotMet: "Minimum length not met.",
-  differentPasswords: "Different passwords."
+const apiExceptions: LocaleType = {
+  theEmailHasAlreadyBeenTaken : 'The email has already been taken.',
+  invalidLoginCredentials : 'Invalid login credentials.',
+  emailNotVerified : 'Email not verified.',
+  errorGeneratingRedirectLink: 'Error generationg redirect link.',
+  emailAlreadyVerified: 'Email already verified.',
+  validationError: 'Validation error.'
 }
+
+// Snackbar
 
 const snackbar: LocaleType = {
   pleaseFillOutAllRequiredFields: "Please fill out all required fields.",
@@ -18,6 +22,15 @@ const snackbar: LocaleType = {
   logoutSuccessful: "Logged out successfully.",
   invalidCredentials: "Invalid email or password.",
   sessionExpired: "Session expired. Please log in again.",
+}
+
+// Rules
+
+const rules: LocaleType = {
+  requiredField: "Required field.",
+  invalidEmail: "Invalid email.",
+  minimumLenghtNotMet: "Minimum length not met.",
+  differentPasswords: "Different passwords."
 }
 
 // Sign-up
@@ -68,6 +81,7 @@ const createNewPassword: LocaleType = {
 }
 
 const en: LocaleType = {
+...apiExceptions,
 ...snackbar,
 ...rules,
 ...signUp,

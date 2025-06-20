@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n' // Assumindo que você usa vue-i18n
+import { useI18n } from 'vue-i18n';
+import { useSnackbarStore } from './snackbar'
+import createExceptions from '@/utils/exception';
 import api from '@/plugins/axios'
 import router from '@/router'
-import { useSnackbarStore } from './snackbar'
+import createWindow from '@/utils/window';
+const newWindow = createWindow();
 
 export interface AuthData {
   id: number
@@ -36,6 +39,7 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const snackbar = useSnackbarStore()
   const authWindow = ref<Window | null>(null)
+  const exception = createExceptions(snackbar, t);
 
   const isAuthenticated = computed((): boolean => Boolean(token.value && user.value))
 
@@ -44,15 +48,15 @@ export const useAuthStore = defineStore('auth', () => {
     userToken: string,
     rememberUser: boolean = true,
   ): void => {
-    if (userData && userToken) {
-      user.value = userData
-      token.value = userToken
-      if (rememberUser) {
-        localStorage.setItem('auth_user', JSON.stringify(userData))
-        localStorage.setItem('auth_token', userToken)
-      }
-    }
+    if (!userData && !userToken) return
+    user.value = userData
+    token.value = userToken
     api.defaults.headers.common['Authorization'] = `Bearer ${userToken}`
+    if (rememberUser) {
+      localStorage.setItem('auth_user', JSON.stringify(userData))
+      localStorage.setItem('auth_token', userToken)
+
+    }
   }
 
   const clearAuth = (): void => {
@@ -63,31 +67,26 @@ export const useAuthStore = defineStore('auth', () => {
     delete api.defaults.headers.common['Authorization']
   }
 
-  const getCurrentUser = async (): Promise<void> => {
+  const getUserSession = async (): Promise<void> => {
     try {
-      const response: any = await api.get('/auth/user')
+      const response = await api.get('/auth/user')
       user.value = response.data
       localStorage.setItem('auth_user', JSON.stringify(response.data))
     } catch (err) {
-      console.error(err)
-      snackbar.show(t('sessionExpired'))
-      clearAuth()
+      snackbar.show(t('sessionExpired'));
+      console.error(err);
+      clearAuth();
     }
   }
 
-  const initializeAuth = (): void => {
+  const initializeAuth = async (): Promise<void> => {
     const savedToken = localStorage.getItem('auth_token')
     const savedUser = localStorage.getItem('auth_user')
     if (savedToken && savedUser) {
-      try {
-        token.value = savedToken
-        user.value = JSON.parse(savedUser)
-        api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
-        getCurrentUser().catch(() => clearAuth())
-      } catch (err) {
-        console.error(err)
-        clearAuth()
-      }
+      token.value = savedToken
+      user.value = JSON.parse(savedUser)
+      api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
+      await getUserSession()
     }
   }
 
@@ -98,8 +97,8 @@ export const useAuthStore = defineStore('auth', () => {
       router.push('/')
       snackbar.success(t('accountCreatedSuccessfully'))
     } catch (err) {
-      snackbar.error(t('errorCreatingAccount'))
-      console.error(err)
+      exception.show(err);
+      console.error(err);
     }
   }
 
@@ -110,17 +109,16 @@ export const useAuthStore = defineStore('auth', () => {
       router.push('/')
       snackbar.success(t('loginSuccessful'))
     } catch (err) {
-      snackbar.error(t('loginFailed'))
-      console.error(err)
+      exception.show(err);
+      console.error(err);
     }
   }
 
   const logout = async (): Promise<void> => {
     try {
-      if (token.value) {
-        await api.post('/auth/logout')
-      }
+      if (token.value) await api.post('/auth/logout')
     } catch (err) {
+      exception.show(err);
       console.error(err)
     } finally {
       clearAuth()
@@ -131,40 +129,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const authenticateProvider = async (provider: string): Promise<void> => {
     try {
-      const w = 600
-      const h = 600
       const response = await api.get(`/auth/${provider}/redirect`)
       const redirectUrl = response.data.redirect_url
-      const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-      const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-      const width = window.innerWidth
-        ? window.innerWidth
-        : document.documentElement.clientWidth
-          ? document.documentElement.clientWidth
-          : screen.width
-      const height = window.innerHeight
-        ? window.innerHeight
-        : document.documentElement.clientHeight
-          ? document.documentElement.clientHeight
-          : screen.height
-
-      const systemZoom = width / window.screen.availWidth
-      const left = (width - w) / 2 / systemZoom + dualScreenLeft
-      const top = (height - h) / 2 / systemZoom + dualScreenTop
-      authWindow.value = window.open(
-        redirectUrl,
-        'Authentication',
-        `
-      scrollbars=yes,
-      width=${w / systemZoom},
-      height=${h / systemZoom},
-      top=${top},
-      left=${left}
-      `,
-      )
+      authWindow.value = newWindow.open(redirectUrl, 'Authentication');
     } catch (err) {
-      snackbar.error(t('failedAuthentication'))
+      exception.show(err);
       console.error(err)
     }
   }
@@ -188,7 +157,7 @@ export const useAuthStore = defineStore('auth', () => {
     authenticate,
     clearAuth,
     initializeAuth,
-    getCurrentUser,
+    getUserSession,
     register,
     login,
     logout,
