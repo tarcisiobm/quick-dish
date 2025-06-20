@@ -10,7 +10,7 @@
         status: '{{ $status }}',
         @if(isset($token))
             token: '{{ $token }}',
-            user: {!! json_encode($user) !!}
+            user: {!! $user !!}
         @else
             error: '{{ $error ?? "Unknown error." }}'
         @endif

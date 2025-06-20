@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class ProviderController extends Controller
 {
@@ -30,11 +31,12 @@ class ProviderController extends Controller
 
     public function handleProviderCallback(string $provider)
     {
+        Log::info('handleProviderCallback');
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
             $user = User::where('email', $socialUser->getEmail())->first();
 
-            if ($user->provider) {
+            if ($user?->provider) {
                 return view('social-callback', [
                     'status' => 'error',
                     'error' => 'User already have a provider.'
@@ -42,8 +44,9 @@ class ProviderController extends Controller
             }
 
             $updatedUser = $this->updateOrCreateFromSocialite($user, $provider, $socialUser);
-            $updatedUser->currentAccessToken()->delete();
+            $updatedUser->currentAccessToken()?->delete();
 
+            Log::info('redirecionando');
             $token = $updatedUser->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
             return view('social-callback', [
                 'status' => 'success',
@@ -51,6 +54,7 @@ class ProviderController extends Controller
                 'user' => $updatedUser->toJson()
             ]);
         } catch (\Exception $e) {
+            Log::info('handleProviderCallback', ['error' => $e]);
             return view('social-callback', [
                 'status' => 'error',
                 'error' => $e->getMessage()
@@ -58,7 +62,7 @@ class ProviderController extends Controller
         }
     }
 
-    private function updateOrCreateFromSocialite(User $user, string $provider, $socialUser)
+    private function updateOrCreateFromSocialite(User|null $user, string $provider, $socialUser)
     {
         return User::updateOrCreate(
             ['email' => $socialUser->getEmail()],

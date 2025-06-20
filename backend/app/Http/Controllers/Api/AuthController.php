@@ -87,7 +87,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $user->currentAccessToken()->delete();
+        $user->currentAccessToken()?->delete();
         $token = $user->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
 
         return response()->json([
@@ -100,7 +100,7 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()?->delete();
         return response()->json([
             'message' => 'Logged out successfully.'
         ]);
