@@ -20,7 +20,6 @@ class EmailVerificationController extends Controller
         }
 
         $user->markEmailAsVerified();
-
         return redirect(config('app.frontend_url') . '/email-verified');
     }
 
@@ -38,10 +37,16 @@ class EmailVerificationController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified.'], 400);
+            return response()->json([
+                'message' => 'Email already verified.',
+                'i18n' => 'emailAlreadyVerified'
+            ]);
         }
 
         $user->sendEmailVerificationNotification();
-        return response()->json(['message' => 'Verification link sent.']);
+        return response()->json([
+            'message' => 'Verification link sent.',
+            'i18n' => 'verificationLinkSent'
+        ]);
     }
 }
