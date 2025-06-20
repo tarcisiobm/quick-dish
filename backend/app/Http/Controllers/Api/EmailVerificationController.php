@@ -31,22 +31,26 @@ class EmailVerificationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'i18n' => 'validationError'
+            ], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         if ($user->hasVerifiedEmail()) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Email already verified.',
                 'i18n' => 'emailAlreadyVerified'
-            ]);
+            ],409);
         }
 
         $user->sendEmailVerificationNotification();
         return response()->json([
             'message' => 'Verification link sent.',
-            'i18n' => 'verificationLinkSent'
         ]);
     }
 }

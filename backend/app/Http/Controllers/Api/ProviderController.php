@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 
 class ProviderController extends Controller
@@ -21,6 +20,7 @@ class ProviderController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Error generating redirect link.',
                 'i18n' => 'errorGeneratingRedirectLink',
                 'error' => $e->getMessage()
@@ -37,12 +37,12 @@ class ProviderController extends Controller
             if ($user->provider) {
                 return view('social-callback', [
                     'status' => 'error',
-                    'error' => 'User already have a provider'
+                    'error' => 'User already have a provider.'
                 ]);
             }
 
             $updatedUser = $this->updateOrCreateFromSocialite($user, $provider, $socialUser);
-            $updatedUser->tokens()->delete();
+            $updatedUser->currentAccessToken()->delete();
 
             $token = $updatedUser->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
             return view('social-callback', [
