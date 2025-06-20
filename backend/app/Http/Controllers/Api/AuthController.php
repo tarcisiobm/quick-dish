@@ -23,26 +23,28 @@ class AuthController extends Controller
 
         if ($validator->fails()) return response()->json($validator->errors(), 422);
 
-        User::where('email', $request->email)
-            ->whereNull('email_verified_at')
-            ->delete();
+        $user = User::where('email', $request->email)->first();
 
-        if (User::where('email', $request->email)->exists()) {
+        if ($user && $user->email_verified_at) {
             return response()->json([
-                'message' => 'The email has already been taken.'
-            ], 422);
+                'message' => 'The email has already been taken.',
+                'i81n' => 'theEmailHasAlreadyBeenTaken'
+            ]);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = User::updateorcreate(
+            ['email' => $request->email],
+            [
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+            ]
+        );
 
         event(new Registered($user));
         return response()->json([
-            'message' => 'User created successfully. Please check your email to verify your account.',
+            'message' => 'User created successfully.',
+            'i81n' => 'userCreatedSuccessfully.'
         ], 201);
     }
 
@@ -60,11 +62,17 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            return response()->json([
+                'message' => 'Invalid login credentials."',
+                'i18n' => 'invalidLoginCredentials.'
+            ], 401);
         }
 
         if (!$user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Your email address is not verified. Please check your inbox.'], 403);
+            return response()->json([
+                'message' => 'Email not verified',
+                'i18n' => 'emailNotVerified'
+            ], 403);
         }
 
         $user->tokens()->delete();
@@ -81,17 +89,23 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully.']);
+        return response()->json([
+            'message' => 'Logged out successfully.'
+        ]);
     }
 
     public function logoutAll(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged out successfully.']);
+        return response()->json([
+            'message' => 'Logged out successfully.'
+        ]);
     }
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json(['user' => $request->user()]);
+        return response()->json([
+            'user' => $request->user()
+        ]);
     }
 }
