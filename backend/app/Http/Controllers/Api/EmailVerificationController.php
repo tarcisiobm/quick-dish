@@ -34,7 +34,7 @@ class EmailVerificationController extends Controller
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'i18n' => 'validationError'
+                'i18n' => 'api.validationError'
             ], 422);
         }
 
@@ -44,7 +44,7 @@ class EmailVerificationController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email already verified.',
-                'i18n' => 'emailAlreadyVerified'
+                'i18n' => 'api.emailAlreadyVerified'
             ],409);
         }
 

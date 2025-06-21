@@ -1,8 +1,9 @@
 import type { LocaleType } from '@/locales/i18n';
+import type { LocaleNamespace } from '@/locales/i18n';
 
 // Api Exceptions
 
-const apiExceptions: LocaleType = {
+const api: LocaleType = {
   theEmailHasAlreadyBeenTaken : 'The email has already been taken.',
   invalidLoginCredentials : 'Invalid login credentials.',
   emailNotVerified : 'Email not verified.',
@@ -16,11 +17,8 @@ const apiExceptions: LocaleType = {
 const snackbar: LocaleType = {
   pleaseFillOutAllRequiredFields: "Please fill out all required fields.",
   accountCreatedSuccessfully: "Account created successfully.",
-  errorCreatingAccount: "Error creating account.",
   loginSuccessful: "Logged in successfully.",
-  loginFailed: "Login failed.",
   logoutSuccessful: "Logged out successfully.",
-  invalidCredentials: "Invalid email or password.",
   sessionExpired: "Session expired. Please log in again.",
 }
 
@@ -29,8 +27,19 @@ const snackbar: LocaleType = {
 const rules: LocaleType = {
   requiredField: "Required field.",
   invalidEmail: "Invalid email.",
-  minimumLenghtNotMet: "Minimum length not met.",
   differentPasswords: "Different passwords."
+}
+
+// Fields
+
+const fields: LocaleType = {
+  firstName: 'First Name',
+  lastName: 'Last Name',
+  phoneNumber: 'Phone number',
+  email: 'Email',
+  password: 'Password',
+  reEnterPassword: 'Re-enter password',
+  submit: 'Submit'
 }
 
 // Sign-up
@@ -38,23 +47,9 @@ const rules: LocaleType = {
 const signUp: LocaleType = {
   signUp: 'Sign-up',
   createAnAccount: 'Create an account',
-  firstName: 'First Name',
-  lastName: 'Last Name',
-  phoneNumber: 'Phone number',
-  email: 'Email',
-  password: 'Password',
-  reEnterPassword: 'Re-enter password',
   agree: 'I agree to the',
   terms: 'terms & conditions',
   register: 'or register with',
-}
-
-const profilePicture: LocaleType ={
-  profilePicture: 'Profile picture',
-  AddPhoto: 'Add a photo so people recognize you',
-  DragAndDrop: 'Drag and drop files here',
-  clickUpload: 'Click here to upload',
-  continueWithoutPhoto: 'Continue without a photo',
 }
 
 // Log-in
@@ -70,25 +65,23 @@ const login: LocaleType = {
 const recoverPassword: LocaleType = {
   recoverPassword: 'Recover Password',
   enterEmail: 'Enter your email to reset your password',
-  sendEmail: 'Enter your email to reset your password',
   backLogin: 'Back to login',
 }
 
 const createNewPassword: LocaleType = {
   createNewPassword: 'Create a new password',
   resetAndContinue: 'Reset and continue',
-  submit: 'Submit'
 }
 
-const en: LocaleType = {
-...apiExceptions,
-...snackbar,
-...rules,
-...signUp,
-...profilePicture,
-...login,
-...recoverPassword,
-...createNewPassword,
-}
+const en:LocaleNamespace = {
+  api: api,
+  snackbar: snackbar,
+  rules: rules,
+  signUp: signUp,
+  login: login,
+  recoverPassword: recoverPassword,
+  createNewPassword: createNewPassword,
+  fields: fields,
+};
 
 export default en;

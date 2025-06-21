@@ -21,7 +21,7 @@ const form = ref<boolean>(false)
 
 const signUp = async (): Promise<void> => {
   if (!form.value) {
-    snackbar.error(t('pleaseFillOutAllRequiredFields'))
+    snackbar.error(t('snackbar.pleaseFillOutAllRequiredFields'))
     return
   }
   await auth.register(
@@ -43,38 +43,38 @@ const signUp = async (): Promise<void> => {
       style="width: 430px"
       class="d-flex flex-column justify-center align-start"
     >
-      <h3>{{ t('signUp') }}</h3>
-      <h4>{{ t('createAnAccount') }}</h4>
+      <h3>{{ t('signUp.signUp') }}</h3>
+      <h4>{{ t('signUp.createAnAccount') }}</h4>
       <div class="w-100 d-flex justify-center align-center ga-4">
         <v-text-field
           v-model="firstName"
-          :label="t('firstName')"
+          :label="t('fields.firstName')"
           :rules="[rules.required]"
           class="w-100"
         ></v-text-field>
         <v-text-field
           v-model="lastName"
-          :label="t('lastName')"
+          :label="t('fields.lastName')"
           :rules="[rules.required]"
           class="w-100"
         ></v-text-field>
       </div>
       <v-text-field
         v-model="email"
-        :label="t('email')"
+        :label="t('fields.email')"
         :rules="[rules.required, rules.email]"
         required
         class="w-100"
       ></v-text-field>
       <v-text-field
         v-model="phone"
-        :label="t('phone')"
+        :label="t('fields.phone')"
         :rules="[rules.required]"
         class="w-100"
       ></v-text-field>
       <v-text-field
         v-model="password1"
-        :label="t('password')"
+        :label="t('fields.password')"
         :rules="[rules.required]"
         :type="showPassword1 ? 'text' : 'password'"
         :append-icon="showPassword1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -83,15 +83,14 @@ const signUp = async (): Promise<void> => {
       ></v-text-field>
       <v-text-field
         v-model="password2"
-        :label="t('reEnterPassword')"
+        :label="t('fields.reEnterPassword')"
         :rules="[rules.required, rules.different(password1, password2)]"
         :type="showPassword2 ? 'text' : 'password'"
         :append-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
         @click:append="showPassword2 = !showPassword2"
         class="w-100"
       ></v-text-field>
-      <RouterLink to="/forgot-password">{{ t('forgotPassword') }}</RouterLink>
-      <v-btn :disabled="!form" @click="signUp" class="w-100">{{ t('signUp') }}</v-btn>
+      <v-btn :disabled="!form" @click="signUp" class="w-100">{{ t('signUp.signUp') }}</v-btn>
     </v-form>
   </div>
 </template>

@@ -17,7 +17,7 @@ const form = ref<boolean>(false)
 
 const login = async (): Promise<void> => {
   if (!form.value || !email.value.trim() || !password.value.trim()) {
-    snackbar.error(t('pleaseFillOutAllRequiredFields'))
+    snackbar.error(t('snackbar.pleaseFillOutAllRequiredFields'))
     return
   }
   await auth.login(
@@ -41,12 +41,12 @@ const loginProvider = async (provider: string): Promise<void> => {
       style="width: 430px"
       class="d-flex flex-column justify-center align-start"
     >
-      <h3>{{ t('login') }}</h3>
-      <h4>{{ t('welcomeBack') }}</h4>
+      <h3>{{ t('login.login') }}</h3>
+      <h4>{{ t('login.welcomeBack') }}</h4>
 
       <v-text-field
         v-model="email"
-        :label="t('email')"
+        :label="t('fields.email')"
         :rules="[rules.required, rules.email]"
         required
         class="w-100"
@@ -54,7 +54,7 @@ const loginProvider = async (provider: string): Promise<void> => {
 
       <v-text-field
         v-model="password"
-        :label="t('password')"
+        :label="t('fields.password')"
         :rules="[rules.required]"
         required
         :type="showPassword ? 'text' : 'password'"
@@ -64,7 +64,7 @@ const loginProvider = async (provider: string): Promise<void> => {
       />
 
       <div class="w-100 d-flex justify-space-between align-center">
-        <v-checkbox v-model="rememberMe" :label="t('rememberMe')" />
+        <v-checkbox v-model="rememberMe" :label="t('login.rememberMe')" />
         <!-- <RouterLink to="/forgot-password">{{ t('forgotPassword') }}</RouterLink> -->
       </div>
 
@@ -72,9 +72,9 @@ const loginProvider = async (provider: string): Promise<void> => {
         :disabled="!form"
         @click="login"
         class="w-100">
-        {{ t('login') }}
+        {{ t('login.login') }}
       </v-btn>
-      <p>{{ t('orLoginWith') }}</p>
+      <p>{{ t('login.orLoginWith') }}</p>
       <v-btn @click="loginProvider('google')">Google</v-btn>
       <v-btn @click="loginProvider('facebook')">Facebook</v-btn>
 

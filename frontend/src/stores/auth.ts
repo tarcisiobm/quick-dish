@@ -73,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.data
       localStorage.setItem('auth_user', JSON.stringify(response.data))
     } catch (err) {
-      snackbar.show(t('sessionExpired'));
+      snackbar.show(t('snackbar.sessionExpired'));
       console.error(err);
       clearAuth();
     }
@@ -95,7 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await api.post('/auth/sign-up', data)
       authenticate(response.data.user, response.data.token)
       router.push('/')
-      snackbar.success(t('accountCreatedSuccessfully'))
+      snackbar.success(t('snackbar.accountCreatedSuccessfully'))
     } catch (err) {
       exception.show(err);
       console.error(err);
@@ -107,7 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await api.post('/auth/login', data)
       authenticate(response.data.user, response.data.token, rememberUser)
       router.push('/')
-      snackbar.success(t('loginSuccessful'))
+      snackbar.success(t('snackbar.loginSuccessful'))
     } catch (err) {
       exception.show(err);
       console.error(err);
@@ -123,7 +123,7 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       clearAuth()
       router.push('/login')
-      snackbar.success(t('logoutSuccessful'))
+      snackbar.success(t('snackbar.logoutSuccessful'))
     }
   }
 
@@ -139,7 +139,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const handleAuthMessage = (event: any) => {
-    if (event.origin !== process.env.BACKEND_URL) return
+    if (event.origin !== process.env.VUE_APP_BACKEND_URL) return
     const { status, token, user } = event.data
 
     if (status === 'success') {

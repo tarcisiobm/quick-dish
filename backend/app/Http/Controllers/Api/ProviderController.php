@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class ProviderController extends Controller
 {
@@ -22,7 +23,7 @@ class ProviderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error generating redirect link.',
-                'i18n' => 'errorGeneratingRedirectLink',
+                'i18n' => 'api.errorGeneratingRedirectLink',
                 'error' => $e->getMessage()
             ], 500);
         }

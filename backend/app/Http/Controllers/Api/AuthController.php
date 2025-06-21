@@ -25,7 +25,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'i18n' => 'validationError'
+                'i18n' => 'api.validationError'
             ], 422);
         }
 
@@ -35,7 +35,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'The email has already been taken.',
-                'i18n' => 'theEmailHasAlreadyBeenTaken'
+                'i18n' => 'api.theEmailHasAlreadyBeenTaken'
             ], 409);
         }
 
@@ -65,7 +65,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'i18n' => 'validationError'
+                'i18n' => 'api.validationError'
             ], 422);
         }
 
@@ -75,7 +75,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid login credentials."',
-                'i18n' => 'invalidLoginCredentials'
+                'i18n' => 'api.invalidLoginCredentials'
             ], 401);
         }
 
@@ -83,7 +83,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email not verified',
-                'i18n' => 'emailNotVerified'
+                'i18n' => 'api.emailNotVerified'
             ], 403);
         }
 
