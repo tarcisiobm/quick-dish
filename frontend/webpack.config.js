@@ -2,6 +2,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
+import DotenvWebpack from 'dotenv-webpack';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -51,7 +54,14 @@ export default {
     new HtmlWebpackPlugin({
       template: './index.html'
     }),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new DotenvWebpack({
+      path: './.env',
+      safe: false,
+      systemvars: true,
+      silent: false,
+      defaults: false
+    }),
   ],
   resolve: {
     extensions: ['.ts', '.js', '.vue', '.json'],
@@ -64,9 +74,9 @@ export default {
     static: {
       directory: path.join(__dirname, 'dist')
     },
-    port: 3000,
+    port: process.env.VUE_APP_PORT || 8080,
     hot: true,
-    open:true,
+    open: true,
   }
 };
 

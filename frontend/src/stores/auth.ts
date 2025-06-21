@@ -139,7 +139,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const handleAuthMessage = (event: any) => {
-    if (event.origin !== 'http://localhost:3100') return
+    if (event.origin !== process.env.BACKEND_URL) return
     const { status, token, user } = event.data
 
     if (status === 'success') {

@@ -1,25 +1,30 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    }
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "src/**/*",
+    "src/**/*.vue",
+    ".env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ],
   "compilerOptions": {
-    "outDir": "./dist/",
-    "noImplicitAny": false,
-    "module": "ESNext",
-    "target": "ES2020",
     "allowJs": true,
-    "moduleResolution": "node",
-    "strict": false,
-    "jsx": "preserve",
-    "esModuleInterop": true,
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"]
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "allowImportingTsExtensions": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["node"]
   }
 }
