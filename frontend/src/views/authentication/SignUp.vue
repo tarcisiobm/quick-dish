@@ -34,6 +34,10 @@ const signUp = async (): Promise<void> => {
     }
   )
 }
+
+const loginProvider = async (provider: string): Promise<void> => {
+  await auth.authenticateProvider(provider);
+}
 </script>
 
 <template>
@@ -91,6 +95,10 @@ const signUp = async (): Promise<void> => {
         class="w-100"
       ></v-text-field>
       <v-btn :disabled="!form" @click="signUp" class="w-100">{{ t('signUp.signUp') }}</v-btn>
+      <p>{{ t('signUp.orRegisterWith') }}</p>
+      <v-btn @click="loginProvider('google')">Google</v-btn>
+      <v-btn @click="loginProvider('facebook')">Facebook</v-btn>
+
     </v-form>
   </div>
 </template>

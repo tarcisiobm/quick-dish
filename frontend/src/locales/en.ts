@@ -44,6 +44,17 @@ const fields: LocaleType = {
   submit: 'Submit'
 }
 
+// AppBar
+
+const appBar: LocaleType = {
+  home: 'Home',
+  about: 'About',
+  contact: 'Contact',
+  reviews: 'Reviews',
+  editProfile: 'Edit profile',
+  logout: 'Logout'
+}
+
 // Sign-up
 
 const signUp: LocaleType = {
@@ -51,7 +62,7 @@ const signUp: LocaleType = {
   createAnAccount: 'Create an account',
   agree: 'I agree to the',
   terms: 'terms & conditions',
-  register: 'or register with',
+  orRegisterWith: 'or register with',
 }
 
 // Log-in
@@ -84,6 +95,7 @@ const en:LocaleNamespace = {
   login: login,
   recover: recover,
   fields: fields,
+  appBar: appBar,
 };
 
 export default en;

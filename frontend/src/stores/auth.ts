@@ -14,7 +14,7 @@ export interface AuthData {
   email: string
   phone: string
   status: number
-  image_path: string | null
+  avatar: string | null
   deleted_at: string | null
   updated_at: string
   created_at: string
@@ -46,11 +46,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed((): boolean => Boolean(token.value && user.value))
 
   const authenticate = (
-    userData: AuthData,
-    userToken: string,
-    rememberUser: boolean = true,
-  ): void => {
+    userData: AuthData,userToken: string,rememberUser: boolean = true): void => {
     if (!userData && !userToken) return
+    console.log(userData);
     user.value = userData
     token.value = userToken
     api.defaults.headers.common['Authorization'] = `Bearer ${userToken}`
@@ -144,7 +142,8 @@ export const useAuthStore = defineStore('auth', () => {
     const { status, token, user } = event.data
 
     if (status === 'success') {
-      authenticate(user, token, true)
+      authenticate(user, token, true);
+      router.push('/');
       return
     }
     if (authWindow.value) authWindow.value.close()

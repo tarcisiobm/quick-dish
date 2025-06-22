@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import snackbar from '@/components/snackbar.vue'
+import snackbar from '@/components/SnackBar.vue'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()

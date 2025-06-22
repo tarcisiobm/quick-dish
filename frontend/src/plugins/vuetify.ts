@@ -56,7 +56,9 @@ export default createVuetify({
       style: [
         { textTransform: 'none'}
       ],
-      color: 'primary'
+      variant: 'elevated',
+      color: 'primary',
+      height:'40',
     },
     VTextField: {
       color: 'primary',
