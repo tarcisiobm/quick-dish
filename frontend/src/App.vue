@@ -3,7 +3,6 @@ import { RouterView } from 'vue-router'
 import snackbar from '@/components/snackbar.vue'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import appbar from './components/appbar.vue'
 const auth = useAuthStore()
 
 onMounted(() => {
@@ -18,10 +17,7 @@ onBeforeUnmount(() => {
 
 <template>
   <v-app>
-    <appbar></appbar>
-    <v-main>
-      <RouterView />
-    </v-main>
+    <RouterView />
     <snackbar></snackbar>
   </v-app>
 </template>

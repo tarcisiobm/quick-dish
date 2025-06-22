@@ -1,0 +1,27 @@
+$font-heading: 'Poppins', sans-serif;
+$font-body: 'Roboto', sans-serif;
+.title {
+  font-family: $font-heading;
+  font-weight: 700;
+  color: rgb(var(--v-theme-title));
+}
+
+.subtitle {
+  font-family: $font-heading;
+  font-weight: 600;
+  color: rgb(var(--v-theme-subtitle));
+}
+
+.text {
+  font-family: $font-body;
+  font-weight: 400;
+  color: rgb(var(--v-theme-text));
+}
+
+.v-application {
+  font-family: $font-body !important;
+
+  .v-card-title {
+    font-family: $font-heading !important;
+  }
+}

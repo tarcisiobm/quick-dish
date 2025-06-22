@@ -35,7 +35,7 @@ const rules: LocaleType = {
 const fields: LocaleType = {
   firstName: 'First Name',
   lastName: 'Last Name',
-  phoneNumber: 'Phone number',
+  phone: 'Phone number',
   email: 'Email',
   password: 'Password',
   reEnterPassword: 'Re-enter password',

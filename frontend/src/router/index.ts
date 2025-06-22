@@ -5,29 +5,39 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('../views/Home.vue'),
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/Login.vue'),
-    },
-     {
-      path: '/signup',
-      name: 'signup',
-      component: () => import('../views/SignUp.vue'),
-    },
-    {
-      path: '/email-verified',
-      name: 'emailverified',
-      component: () => import('../views/Email-verified.vue'),
+      component: () => import('@/views/Layout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: () => import('@/views/Home.vue'),
+        },
+        {
+          path: '/login',
+          name: 'login',
+          component: () => import('@/views/authentication/Login.vue'),
+        },
+        {
+          path: 'signup',
+          name: 'signup',
+          component: () => import('@/views/authentication/SignUp.vue'),
+        },
+        {
+          path: 'email-verified',
+          name: 'emailverified',
+          component: () => import('@/views/email-verification/EmailVerified.vue'),
+        },
+      ],
     },
     {
       path: '/404',
       name: '404',
       component: () => import('../views/404.vue'),
-    }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/404',
+    },
   ],
 })
 

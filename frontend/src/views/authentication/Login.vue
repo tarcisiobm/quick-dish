@@ -65,7 +65,7 @@ const loginProvider = async (provider: string): Promise<void> => {
 
       <div class="w-100 d-flex justify-space-between align-center">
         <v-checkbox v-model="rememberMe" :label="t('login.rememberMe')" />
-        <!-- <RouterLink to="/forgot-password">{{ t('forgotPassword') }}</RouterLink> -->
+        <RouterLink to="/forgot-password">{{ t('login.forgotPassword') }}</RouterLink>
       </div>
 
       <v-btn
