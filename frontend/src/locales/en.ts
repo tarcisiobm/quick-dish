@@ -20,6 +20,8 @@ const snackbar: LocaleType = {
   loginSuccessful: "Logged in successfully.",
   logoutSuccessful: "Logged out successfully.",
   sessionExpired: "Session expired. Please log in again.",
+  tokenValidated: "Token validated successfully.",
+  passwordChanged: "Password changed successfully."
 }
 
 // Rules
@@ -62,13 +64,14 @@ const login: LocaleType = {
   orLoginWith: 'Or login with',
 }
 
-const recoverPassword: LocaleType = {
+const recover: LocaleType = {
   recoverPassword: 'Recover Password',
   enterEmail: 'Enter your email to reset your password',
   backLogin: 'Back to login',
-}
-
-const createNewPassword: LocaleType = {
+  sendEmail: 'Send Email',
+  enterVerificationCode:  'Enter verification code',
+  sentCodeEmail: 'We’ve sent a 6-digit code to your email',
+  verifyCode: 'Verify code',
   createNewPassword: 'Create a new password',
   resetAndContinue: 'Reset and continue',
 }
@@ -79,8 +82,7 @@ const en:LocaleNamespace = {
   rules: rules,
   signUp: signUp,
   login: login,
-  recoverPassword: recoverPassword,
-  createNewPassword: createNewPassword,
+  recover: recover,
   fields: fields,
 };
 

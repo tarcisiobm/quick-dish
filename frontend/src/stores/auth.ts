@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 import { useSnackbarStore } from './snackbar'
-import createExceptions from '@/utils/exception';
+import createExceptions from '@/utils/exception'
 import api from '@/plugins/axios'
 import router from '@/router'
-import createWindow from '@/utils/window';
-const newWindow = createWindow();
+import createWindow from '@/utils/window'
+const newWindow = createWindow()
 
 export interface AuthData {
   id: number
@@ -37,9 +37,11 @@ export const useAuthStore = defineStore('auth', () => {
   const { t } = useI18n()
   const user = ref<AuthData | null>(null)
   const token = ref<string | null>(null)
+  const recoverToken = ref<string | null>(null)
+  const recoverEmail = ref<string | null>(null)
   const snackbar = useSnackbarStore()
   const authWindow = ref<Window | null>(null)
-  const exception = createExceptions(snackbar, t);
+  const exception = createExceptions(snackbar, t)
 
   const isAuthenticated = computed((): boolean => Boolean(token.value && user.value))
 
@@ -55,7 +57,6 @@ export const useAuthStore = defineStore('auth', () => {
     if (rememberUser) {
       localStorage.setItem('auth_user', JSON.stringify(userData))
       localStorage.setItem('auth_token', userToken)
-
     }
   }
 
@@ -73,9 +74,9 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.data
       localStorage.setItem('auth_user', JSON.stringify(response.data))
     } catch (err) {
-      snackbar.show(t('snackbar.sessionExpired'));
-      console.error(err);
-      clearAuth();
+      snackbar.show(t('snackbar.sessionExpired'))
+      console.error(err)
+      clearAuth()
     }
   }
 
@@ -97,8 +98,8 @@ export const useAuthStore = defineStore('auth', () => {
       router.push('/')
       snackbar.success(t('snackbar.accountCreatedSuccessfully'))
     } catch (err) {
-      exception.show(err);
-      console.error(err);
+      exception.show(err)
+      console.error(err)
     }
   }
 
@@ -109,8 +110,8 @@ export const useAuthStore = defineStore('auth', () => {
       router.push('/')
       snackbar.success(t('snackbar.loginSuccessful'))
     } catch (err) {
-      exception.show(err);
-      console.error(err);
+      exception.show(err)
+      console.error(err)
     }
   }
 
@@ -118,7 +119,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       if (token.value) await api.post('/auth/logout')
     } catch (err) {
-      exception.show(err);
+      exception.show(err)
       console.error(err)
     } finally {
       clearAuth()
@@ -131,9 +132,9 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await api.get(`/auth/${provider}/redirect`)
       const redirectUrl = response.data.redirect_url
-      authWindow.value = newWindow.open(redirectUrl, 'Authentication');
+      authWindow.value = newWindow.open(redirectUrl, 'Authentication')
     } catch (err) {
-      exception.show(err);
+      exception.show(err)
       console.error(err)
     }
   }
@@ -150,6 +151,51 @@ export const useAuthStore = defineStore('auth', () => {
     window.removeEventListener('message', handleAuthMessage)
   }
 
+  const recoverPassword = async (email: string): Promise<void> => {
+    if (!email || !email.trim()) return
+    try {
+      await api.post('/auth/recover-password', { email })
+      recoverEmail.value = email
+      router.push('/recover-password/verification')
+    } catch (err) {
+      exception.show(err)
+      console.error(err)
+    }
+  }
+  const validateToken = async (token: string): Promise<void> => {
+    if (!token || !token.trim()) return
+    try {
+      await api.post('/auth/validate-token', {
+        token,
+        email: recoverEmail.value,
+      })
+      recoverToken.value = token
+      snackbar.success(t('snackbar.tokenValidated'))
+      router.push('/recover-password/new')
+    } catch (err) {
+      exception.show(err)
+      console.error(err)
+    }
+  }
+
+  const setNewPassword = async (password: string, password_confirmation: string): Promise<void> => {
+    if (!password || !password_confirmation || !password.trim() || !password_confirmation.trim())
+      return
+    try {
+      await api.post('/auth/reset-password', {
+        email: recoverEmail.value,
+        token: recoverToken.value,
+        password,
+        password_confirmation,
+      })
+      snackbar.success(t('snackbar.passwordChanged'))
+      router.push('/login')
+    } catch (err) {
+      exception.show(err)
+      console.error(err)
+    }
+  }
+
   return {
     user,
     token,
@@ -163,5 +209,8 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     authenticateProvider,
     handleAuthMessage,
+    recoverPassword,
+    validateToken,
+    setNewPassword
   }
 })

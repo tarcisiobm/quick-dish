@@ -18,6 +18,21 @@ const router = createRouter({
           component: () => import('@/views/authentication/Login.vue'),
         },
         {
+          path: '/recover-password',
+          name: 'recover password',
+          component: () => import('@/views/recover-password/RecoverPassword.vue'),
+        },
+        {
+          path: '/recover-password/verification',
+          name: 'verification code',
+          component: () => import('@/views/recover-password/VerificationCode.vue'),
+        },
+        {
+          path: '/recover-password/new',
+          name: 'new password',
+          component: () => import('@/views/recover-password/NewPassword.vue'),
+        },
+        {
           path: 'signup',
           name: 'signup',
           component: () => import('@/views/authentication/SignUp.vue'),
