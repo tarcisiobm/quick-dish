@@ -53,6 +53,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'port' => env('SERVER_PORT', 8000),
+    'backend_url' => env('APP_URL', 'http://localhost') . env('SERVER_PORT', 8000),
 
     /*
     |--------------------------------------------------------------------------
@@ -123,4 +125,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:8080'),
+    'allowed_origins' => explode(',', env('ALLOWED_ORIGINS')),
 ];
