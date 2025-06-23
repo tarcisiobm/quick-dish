@@ -25,6 +25,7 @@ export default createVuetify({
           error_dense: '#E53E3E',
           alert: '#F8BB40',
           background: '#F8F9FA',
+          alt_background: '#F8F9FA',
           input_background: '#EEEFF0',
           title: '#1A202C',
           subtitle: '#2D3748',
@@ -41,11 +42,12 @@ export default createVuetify({
           error_dense: '#E53E3E',
           alert: '#FFA356',
           background: '#121214',
+          alt_background: '#151517',
           input_background: '#1B1B1E',
-          title: '#1A202C',
-          subtitle: '#2D3748',
-          text: '#212529',
-          text_low_opacity: '#212428',
+          title: '#FFF',
+          subtitle: '#E2E8F0',
+          text: '#F1F3F5',
+          text_low_opacity: '#D6D7D9',
           border: '#C8C8C8'
         }
       }

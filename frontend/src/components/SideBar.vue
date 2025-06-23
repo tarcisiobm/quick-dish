@@ -34,10 +34,14 @@ const openMenu = ref<string[]>([]);
 const lastOpenMenu = ref<string[]>([]);
 
 const menuItems: readonly MenuItem[] = [
-  { title: 'Menu', icon: 'mdi-clipboard-text-outline',     children: [
+  {
+    title: 'Menu',
+    icon: 'mdi-clipboard-text-outline',
+    children: [
       { title: 'Pizzas', to: '/menu/pizzas' },
       { title: 'Salads', to: '/menu/salads' }
-    ]},
+    ]
+  },
   {
     title: 'Reservations',
     icon: 'mdi-calendar-month-outline',
@@ -78,7 +82,9 @@ const searchResults = computed<SearchResult[]>(() => {
   });
 });
 
-watch(() => sidebar.isExpanded, (isExpanded) => {
+watch(
+  () => sidebar.isExpanded,
+  (isExpanded) => {
     if (isExpanded) {
       openMenu.value = lastOpenMenu.value;
       return;
@@ -103,10 +109,10 @@ watch(() => sidebar.isExpanded, (isExpanded) => {
         <template v-if="searchValue.trim()">
           <v-list-subheader v-if="searchResults.length">{{ t('fields.searchResults') }}</v-list-subheader>
           <template v-if="searchResults.length">
-            <v-list-item class="pa-0" v-for="result in searchResults" :key="`${result.title}-${result.parent || ''}`" :to="result.to" :prepend-icon="result.icon" :title="result.title" :subtitle="result.parent" />
+            <v-list-item class="pa-0 menu-list-item" v-for="result in searchResults" :key="`${result.title}-${result.parent || ''}`" :to="result.to" :prepend-icon="result.icon" :title="result.title" :subtitle="result.parent" />
           </template>
           <v-list-item v-else>
-            <v-list-item-title class="text-center">{{ t('fields.noResults') }}</v-list-item-title>
+            <v-list-item-title class="text-center color-text">{{ t('fields.noResults') }}</v-list-item-title>
           </v-list-item>
         </template>
 
@@ -126,7 +132,7 @@ watch(() => sidebar.isExpanded, (isExpanded) => {
     </div>
 
     <div class="sidebar-footer" :class="{ 'align-self-end': sidebar.isExpanded }">
-      <v-btn :icon="sidebar.isPinned ? 'mdi-pin' : 'mdi-pin-outline'" variant="text" height="undefined" @click="sidebar.togglePin" />
+      <v-btn color="text" :icon="sidebar.isPinned ? 'mdi-pin' : 'mdi-pin-outline'" variant="text" height="undefined" @click="sidebar.togglePin" />
     </div>
   </div>
 </template>
@@ -141,7 +147,7 @@ watch(() => sidebar.isExpanded, (isExpanded) => {
   bottom: 0;
   width: 56px;
   padding: 0 16px;
-  background-color: rgb(var(--v-theme-background));
+  background-color: rgb(var(--v-theme-alt_background));
   transition: width 0.3s ease;
   z-index: 10;
   overflow: hidden;
@@ -176,32 +182,31 @@ watch(() => sidebar.isExpanded, (isExpanded) => {
   padding-inline-start: 38px !important;
 }
 
-.menu-list-item{
+.menu-list-item {
   color: rgb(var(--v-theme-text));
   font-size: 16px !important;
 }
 
-.menu-list-item:deep(.v-list-item-title){
+.menu-list-item:deep(.v-list-item-title) {
   color: rgb(var(--v-theme-text));
   font-size: 16px;
   font-weight: 500;
 }
 
 .menu-list-item :deep(.v-list-item__prepend i) {
-    color: rgb(var(--v-theme-text));
-    opacity: 1 !important;
+  color: rgb(var(--v-theme-text));
+  opacity: 1 !important;
 }
 
-.menu-list-subitem{
+.menu-list-subitem {
   color: rgb(var(--v-theme-text));
   font-size: 13px !important;
 }
 
-.menu-list-subitem:deep(.v-list-item-title){
+.menu-list-subitem:deep(.v-list-item-title) {
   color: rgb(var(--v-theme-text));
   font-size: 14px;
   font-weight: 400;
   padding-left: 30px;
 }
-
 </style>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import AppBar from '@/components/AppBar.vue'
-import SideBar from '@/components/SideBar.vue'
-import { useSidebarStore } from '@/stores/sidebar'
-const sidebarStore = useSidebarStore()
+import AppBar from '@/components/AppBar.vue';
+import SideBar from '@/components/SideBar.vue';
+import { useSidebarStore } from '@/stores/sidebar';
+const sidebarStore = useSidebarStore();
 </script>
 
 <template>
@@ -16,17 +16,17 @@ const sidebarStore = useSidebarStore()
 </template>
 
 <style scoped lang="scss">
-
-.main-view{
+.main-view {
+  margin-top: 56px;
   border-top-left-radius: 4px;
-  border: 0.5px solid rgb(var(--v-theme-border));
-
+  border-left: 0.5px solid rgb(var(--v-theme-border));
+  border-top: 0.5px solid rgb(var(--v-theme-border));
 }
-.default{
+.default {
   margin-left: 56px;
 }
 
-.pined{
+.pined {
   margin-left: 332px;
 }
 </style>
