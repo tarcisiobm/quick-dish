@@ -1,9 +1,9 @@
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { mdi } from 'vuetify/iconsets/mdi'
-import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import { mdi } from 'vuetify/iconsets/mdi';
+import '@mdi/font/css/materialdesignicons.css';
 
 export default createVuetify({
   components,
@@ -11,23 +11,56 @@ export default createVuetify({
   icons: {
     defaultSet: 'mdi',
     sets: {
-      mdi,
-    },
+      mdi
+    }
   },
   theme: {
     defaultTheme: 'light',
     themes: {
       light: {
         colors: {
-          primary: '#1976D2',
-          secondary: '#424242',
-          accent: '#82B1FF',
-          error: '#FF5252',
-          info: '#2196F3',
-          success: '#4CAF50',
-          warning: '#FFC107',
-        },
+          primary: '#FF7C35',
+          success: '#41CC81',
+          error: '#F94E4E',
+          error_dense: '#E53E3E',
+          alert: '#F8BB40',
+          background: '#F8F9FA',
+          input_background: '#EEEFF0',
+          title: '#1A202C',
+          subtitle: '#2D3748',
+          text: '#212529',
+          text_low_opacity: '#212428',
+          border: '#C8C8C8'
+        }
       },
-    },
+      dark: {
+        colors: {
+          primary: '#FF7F50',
+          success: '#41CC81',
+          error: '#F56565',
+          error_dense: '#E53E3E',
+          alert: '#FFA356',
+          background: '#121214',
+          input_background: '#1B1B1E',
+          title: '#1A202C',
+          subtitle: '#2D3748',
+          text: '#212529',
+          text_low_opacity: '#212428',
+          border: '#C8C8C8'
+        }
+      }
+    }
   },
-})
+  defaults: {
+    VBtn: {
+      style: [{ textTransform: 'none' }],
+      variant: 'elevated',
+      color: 'primary',
+      height: '40'
+    },
+    VTextField: {
+      color: 'primary',
+      bgColor: 'input_background'
+    }
+  }
+});

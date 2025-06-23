@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
+import snackbar from '@/components/SnackBar.vue';
+import { onBeforeUnmount, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
+
+onMounted(() => {
+  auth.initializeAuth();
+  window.addEventListener('message', auth.handleAuthMessage);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('message', auth.handleAuthMessage);
+});
 </script>
 
 <template>
   <v-app>
-    <v-app-bar app>
-      <div class="wrapper">
-        <nav class="d-flex align-baseline">
-          <v-btn variant="text" to="/" class="mr-2">Home</v-btn>
-          <v-btn variant="text" to="/login">Login</v-btn>
-        </nav>
-      </div>
-    </v-app-bar>
-
-    <v-main>
-      <v-container>
-        <RouterView />
-      </v-container>
-    </v-main>
+    <RouterView />
+    <snackbar></snackbar>
   </v-app>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
