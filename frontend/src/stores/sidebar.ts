@@ -1,42 +1,42 @@
-import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { defineStore } from 'pinia';
+import { ref, watch } from 'vue';
 
 export const useSidebarStore = defineStore('sidebar', () => {
-  const savedPinned = localStorage.getItem('sidebar-pinned')
-  const initialPinned = savedPinned ? JSON.parse(savedPinned) : false
+  const savedPinned = localStorage.getItem('sidebar-pinned');
+  const initialPinned = savedPinned ? JSON.parse(savedPinned) : false;
 
-  const isExpanded = ref(initialPinned)
-  const isPinned = ref(initialPinned)
+  const isExpanded = ref(initialPinned);
+  const isPinned = ref(initialPinned);
 
   watch(isPinned, (value) => {
-    localStorage.setItem('sidebar-pinned', JSON.stringify(value))
+    localStorage.setItem('sidebar-pinned', JSON.stringify(value));
     if (value) {
-      isExpanded.value = true
+      isExpanded.value = true;
     }
-  })
+  });
 
   function expandSidebar() {
-    isExpanded.value = true
+    isExpanded.value = true;
   }
 
   function collapseSidebar() {
     if (!isPinned.value) {
-      isExpanded.value = false
+      isExpanded.value = false;
     }
   }
 
   function togglePin() {
-    isPinned.value = !isPinned.value
+    isPinned.value = !isPinned.value;
   }
 
   function setSidebarExpanded(expanded: boolean) {
-    isExpanded.value = expanded
+    isExpanded.value = expanded;
   }
 
   function setSidebarPinned(pinned: boolean) {
-    isPinned.value = pinned
+    isPinned.value = pinned;
     if (!pinned) {
-      isExpanded.value = false
+      isExpanded.value = false;
     }
   }
 
@@ -48,5 +48,5 @@ export const useSidebarStore = defineStore('sidebar', () => {
     togglePin,
     setSidebarExpanded,
     setSidebarPinned
-  }
-})
+  };
+});

@@ -1,42 +1,35 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
-import { RouterLink, useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { useSidebarStore } from '@/stores/sidebar'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { useAuthStore } from '@/stores/auth';
+import { RouterLink, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useSidebarStore } from '@/stores/sidebar';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-const router = useRouter()
-const auth = useAuthStore()
-const sidebar = useSidebarStore()
-const { t } = useI18n()
+const router = useRouter();
+const auth = useAuthStore();
+const sidebar = useSidebarStore();
+const { t } = useI18n();
 
-const isScrolled = ref(false)
+const isScrolled = ref(false);
 
 function handleScroll() {
-  isScrolled.value = window.scrollY > 0
+  isScrolled.value = window.scrollY > 0;
 }
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
+  window.addEventListener('scroll', handleScroll);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
-  <nav
-    :class="[
-      'superior-nav-bar d-flex justify-space-between px-2 w-100',
-      { scrolled: isScrolled, 'sidebar-expanded': sidebar.isExpanded }
-    ]"
-  >
+  <nav :class="['superior-nav-bar d-flex justify-space-between px-2 w-100', { scrolled: isScrolled, 'sidebar-expanded': sidebar.isExpanded }]">
     <div @click="router.push('/')" class="d-flex align-center ga-3 cursor-pointer">
       <img width="45" src="@/assets/logo.svg" />
-      <h1 class="font-22 font-bold">
-        Quick<span class="font-22 font-bold color-primary">Dish</span>
-      </h1>
+      <h1 class="font-22 font-bold">Quick<span class="font-22 font-bold color-primary">Dish</span></h1>
     </div>
 
     <div class="d-flex justify-center align-center ga-4">
@@ -52,14 +45,7 @@ onUnmounted(() => {
       </v-btn>
 
       <div v-if="!auth.isAuthenticated" class="d-flex justify-center align-center ga-4">
-        <v-btn
-          color="text"
-          variant="text"
-          prepend-icon="mdi-account-circle-outline"
-          @click="router.push('/login')"
-        >
-          Login
-        </v-btn>
+        <v-btn color="text" variant="text" prepend-icon="mdi-account-circle-outline" @click="router.push('/login')"> Login </v-btn>
         <v-btn @click="router.push('/signup')">SignUp</v-btn>
       </div>
 
@@ -74,11 +60,7 @@ onUnmounted(() => {
             <v-list-item to="/account-settings" prepend-icon="mdi-pencil" base-color="text">
               <v-list-item-title>{{ t('appBar.editProfile') }}</v-list-item-title>
             </v-list-item>
-            <v-list-item
-              @click="auth.logout"
-              prepend-icon="mdi-logout-variant"
-              base-color="error_dense"
-            >
+            <v-list-item @click="auth.logout" prepend-icon="mdi-logout-variant" base-color="error_dense">
               <v-list-item-title class="color-error_dense">{{ t('appBar.logout') }}</v-list-item-title>
             </v-list-item>
           </v-list>
