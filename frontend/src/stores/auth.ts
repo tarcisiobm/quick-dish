@@ -120,7 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.error(err);
     } finally {
       clearAuth();
-      router.push('/login');
+      router.push('/');
       snackbar.success(t('snackbar.logoutSuccessful'));
     }
   };

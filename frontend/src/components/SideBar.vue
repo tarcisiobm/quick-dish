@@ -114,12 +114,12 @@ watch(() => sidebar.isExpanded, (isExpanded) => {
           <template v-for="item in menuItems" :key="item.title">
             <v-list-group v-if="item.children" :value="item.title">
               <template #activator="{ props }">
-                <v-list-item class="pa-0" v-bind="props" :prepend-icon="item.icon" :title="item.title" />
+                <v-list-item class="pa-0 menu-list-item" v-bind="props" :prepend-icon="item.icon" :title="item.title" />
               </template>
-              <v-list-item v-for="sub in item.children" :key="sub.title" :to="sub.to" :title="sub.title" class="submenu-item pa-0" />
+              <v-list-item v-for="sub in item.children" :key="sub.title" :to="sub.to" :title="sub.title" class="submenu-item menu-list-subitem" />
             </v-list-group>
 
-            <v-list-item class="pa-0" v-else :prepend-icon="item.icon" :title="item.title" :to="item.to" />
+            <v-list-item class="pa-0 menu-list-item" v-else :prepend-icon="item.icon" :title="item.title" :to="item.to" />
           </template>
         </template>
       </v-list>
@@ -175,4 +175,33 @@ watch(() => sidebar.isExpanded, (isExpanded) => {
 .submenu-item {
   padding-inline-start: 38px !important;
 }
+
+.menu-list-item{
+  color: rgb(var(--v-theme-text));
+  font-size: 16px !important;
+}
+
+.menu-list-item:deep(.v-list-item-title){
+  color: rgb(var(--v-theme-text));
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.menu-list-item :deep(.v-list-item__prepend i) {
+    color: rgb(var(--v-theme-text));
+    opacity: 1 !important;
+}
+
+.menu-list-subitem{
+  color: rgb(var(--v-theme-text));
+  font-size: 13px !important;
+}
+
+.menu-list-subitem:deep(.v-list-item-title){
+  color: rgb(var(--v-theme-text));
+  font-size: 14px;
+  font-weight: 400;
+  padding-left: 30px;
+}
+
 </style>
