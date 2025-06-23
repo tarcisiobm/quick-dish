@@ -41,6 +41,9 @@ const fields: LocaleType = {
   email: 'Email',
   password: 'Password',
   reEnterPassword: 'Re-enter password',
+  search: 'Search',
+  searchResults: 'Search results',
+  noResults: 'No results found.',
   submit: 'Submit'
 };
 
