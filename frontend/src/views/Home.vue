@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import api from '@/plugins/axios'
+import api from '@/plugins/axios';
 import { ref } from 'vue';
 const message = ref('');
 const pingServer = async () => {
   try {
     const response = await api.get('/ping');
-    message.value = response.data.message
+    message.value = response.data.message;
   } catch (error) {
     console.error('erro na requisição:', error);
   }
-}
+};
 </script>
 
 <template>

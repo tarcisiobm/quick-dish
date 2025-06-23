@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import snackbar from '@/components/SnackBar.vue'
-import { onBeforeUnmount, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-const auth = useAuthStore()
+import { RouterView } from 'vue-router';
+import snackbar from '@/components/SnackBar.vue';
+import { onBeforeUnmount, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
 
 onMounted(() => {
-  auth.initializeAuth()
-  window.addEventListener('message', auth.handleAuthMessage)
-})
+  auth.initializeAuth();
+  window.addEventListener('message', auth.handleAuthMessage);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('message', auth.handleAuthMessage)
-})
+  window.removeEventListener('message', auth.handleAuthMessage);
+});
 </script>
 
 <template>

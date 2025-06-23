@@ -8,7 +8,7 @@ const createRules = (t: Function) => ({
     if (!regex.test(value)) return t('rules.invalidEmail');
     return true;
   },
-  different: (password1: string, password2: string):boolean | string => {
+  different: (password1: string, password2: string): boolean | string => {
     if (password1 != password2) return t('rules.differentPasswords');
     return true;
   }

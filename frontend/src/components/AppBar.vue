@@ -1,40 +1,30 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
-import { RouterLink, useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-const router = useRouter()
-const auth = useAuthStore()
-const { t } = useI18n()
+import { useAuthStore } from '@/stores/auth';
+import { RouterLink, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+const router = useRouter();
+const auth = useAuthStore();
+const { t } = useI18n();
 </script>
 
 <template>
   <nav class="superior-nav-bar d-flex justify-space-between px-2 w-100">
     <div @click="router.push('/')" class="d-flex align-center ga-3 cursor-pointer">
       <img width="45" src="@/assets/logo.svg" />
-      <h1 class="font-22 font-bold">
-        Quick<span class="font-22 font-bold color-primary">Dish</span>
-      </h1>
+      <h1 class="font-22 font-bold">Quick<span class="font-22 font-bold color-primary">Dish</span></h1>
     </div>
-
     <div class="d-flex justify-center align-center ga-4">
       <RouterLink to="/" class="nav-link color-text">Home</RouterLink>
       <RouterLink to="/about" class="nav-link color-text">About</RouterLink>
       <RouterLink to="/contact" class="nav-link color-text">Contact</RouterLink>
       <RouterLink to="/reviews" class="nav-link color-text">Reviews</RouterLink>
     </div>
-
     <div class="d-flex justify-center align-center ga-4">
       <v-btn height="undefined" icon variant="outlined">
         <v-icon height="48" color="text"> mdi-basket </v-icon>
       </v-btn>
       <div v-if="!auth.isAuthenticated" class="d-flex justify-center align-center ga-4">
-        <v-btn
-          color="text"
-          variant="text"
-          prepend-icon="mdi-account-circle-outline"
-          @click="router.push('/login')"
-          >Login</v-btn
-        >
+        <v-btn color="text" variant="text" prepend-icon="mdi-account-circle-outline" @click="router.push('/login')">Login</v-btn>
         <v-btn @click="router.push('/signup')">SignUp</v-btn>
       </div>
       <div v-else width="36" class="user-card d-flex justify-center align-center">
@@ -48,7 +38,7 @@ const { t } = useI18n()
                 <v-list-item-title>{{ t('appBar.editProfile') }}</v-list-item-title>
               </v-list-item>
               <v-list-item @click="auth.logout" prepend-icon="mdi-logout-variant" base-color="error_dense">
-                <v-list-item-title  class="color-error_dense">{{ t('appBar.logout') }}</v-list-item-title>
+                <v-list-item-title class="color-error_dense">{{ t('appBar.logout') }}</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>

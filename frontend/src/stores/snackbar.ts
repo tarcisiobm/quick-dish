@@ -10,11 +10,11 @@ export const useSnackbarStore = defineStore('snackbar', {
     color: 'success',
     timeout: 2000,
     status: false,
-    location: defaultLocation as SnackbarLocation,
+    location: defaultLocation as SnackbarLocation
   }),
 
   getters: {
-    isActive: (state) => state.status,
+    isActive: (state) => state.status
   },
 
   actions: {
@@ -50,5 +50,5 @@ export const useSnackbarStore = defineStore('snackbar', {
       this.message = '';
       this.status = false;
     }
-  },
+  }
 });

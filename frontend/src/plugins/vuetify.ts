@@ -1,9 +1,9 @@
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { mdi } from 'vuetify/iconsets/mdi'
-import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import { mdi } from 'vuetify/iconsets/mdi';
+import '@mdi/font/css/materialdesignicons.css';
 
 export default createVuetify({
   components,
@@ -11,8 +11,8 @@ export default createVuetify({
   icons: {
     defaultSet: 'mdi',
     sets: {
-      mdi,
-    },
+      mdi
+    }
   },
   theme: {
     defaultTheme: 'light',
@@ -26,12 +26,12 @@ export default createVuetify({
           alert: '#F8BB40',
           background: '#F8F9FA',
           input_background: '#EEEFF0',
-          title:'#1A202C',
+          title: '#1A202C',
           subtitle: '#2D3748',
           text: '#212529',
           text_low_opacity: '#212428',
-          border: '#C8C8C8',
-        },
+          border: '#C8C8C8'
+        }
       },
       dark: {
         colors: {
@@ -42,27 +42,25 @@ export default createVuetify({
           alert: '#FFA356',
           background: '#121214',
           input_background: '#1B1B1E',
-          title:'#1A202C',
+          title: '#1A202C',
           subtitle: '#2D3748',
           text: '#212529',
           text_low_opacity: '#212428',
-          border: '#C8C8C8',
-        },
-      },
-    },
+          border: '#C8C8C8'
+        }
+      }
+    }
   },
   defaults: {
     VBtn: {
-      style: [
-        { textTransform: 'none'}
-      ],
+      style: [{ textTransform: 'none' }],
       variant: 'elevated',
       color: 'primary',
-      height:'40',
+      height: '40'
     },
     VTextField: {
       color: 'primary',
       bgColor: 'input_background'
     }
   }
-})
+});
