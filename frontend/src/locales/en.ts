@@ -52,7 +52,7 @@ const fields: LocaleType = {
 const theme: LocaleType = {
   enableLightMode: 'Enable Light Mode',
   enableDarkMode: 'Enable Dark Mode'
-}
+};
 
 // AppBar
 
@@ -106,7 +106,7 @@ const en: LocaleNamespace = {
   signUp: signUp,
   login: login,
   recover: recover,
-  fields: fields,
+  fields: fields
 };
 
 export default en;

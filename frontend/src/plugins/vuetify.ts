@@ -34,7 +34,6 @@ export default createVuetify({
           border: '#C8C8C8',
           window_border: '#C8C8C8',
           social_btn_background: '#EEF0EF'
-
         }
       },
       dark: {
@@ -63,7 +62,7 @@ export default createVuetify({
       style: [{ textTransform: 'none' }],
       variant: 'elevated',
       color: 'primary',
-      class: 'text',
+      class: 'text'
     },
     VTextField: {
       color: 'primary',
