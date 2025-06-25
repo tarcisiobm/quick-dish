@@ -54,7 +54,7 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     'port' => env('SERVER_PORT', 8000),
-    'backend_url' => env('APP_URL', 'http://localhost') . env('SERVER_PORT', 8000),
+    'backend_url' => env('APP_URL', 'http://localhost').env('SERVER_PORT', 8000),
 
     /*
     |--------------------------------------------------------------------------

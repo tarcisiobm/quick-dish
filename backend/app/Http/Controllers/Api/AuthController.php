@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -21,14 +21,14 @@ class AuthController extends Controller
             'name' => 'required|string|max:150',
             'email' => 'required|string|max:150|email|unique:users,email',
             'phone' => 'required|string|max:20',
-            'password' => 'required|string|min:8|confirmed'
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
 
@@ -38,7 +38,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'The email has already been taken.',
-                'i18n' => 'api.theEmailHasAlreadyBeenTaken'
+                'i18n' => 'api.theEmailHasAlreadyBeenTaken',
             ], 409);
         }
 
@@ -52,6 +52,7 @@ class AuthController extends Controller
         );
 
         event(new Registered($user));
+
         return response()->json([
             'message' => 'User created successfully.',
         ], 201);
@@ -61,32 +62,32 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid login credentials."',
-                'i18n' => 'api.invalidLoginCredentials'
+                'i18n' => 'api.invalidLoginCredentials',
             ], 401);
         }
 
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email not verified',
-                'i18n' => 'api.emailNotVerified'
+                'i18n' => 'api.emailNotVerified',
             ], 403);
         }
 
@@ -97,23 +98,25 @@ class AuthController extends Controller
             'message' => 'User authenticated successfully.',
             'user' => $user,
             'token' => $token,
-            'token_type' => 'Bearer'
+            'token_type' => 'Bearer',
         ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()?->delete();
+
         return response()->json([
-            'message' => 'Logged out successfully.'
+            'message' => 'Logged out successfully.',
         ]);
     }
 
     public function logoutAll(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
+
         return response()->json([
-            'message' => 'Logged out from all devices successfully.'
+            'message' => 'Logged out from all devices successfully.',
         ]);
     }
 
@@ -121,31 +124,32 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => $request->user(),
-            'message' => 'User recovered successfully.'
+            'message' => 'User recovered successfully.',
         ]);
     }
+
     public function changePassword(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed'
+            'new_password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
 
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Current password is incorrect.',
-                'i18n' => 'api.currentPasswordIncorrect'
+                'i18n' => 'api.currentPasswordIncorrect',
             ], 403);
         }
 
@@ -153,7 +157,7 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Password changed successfully.'
+            'message' => 'Password changed successfully.',
         ]);
     }
 
@@ -167,7 +171,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
         $user = $request->user();
@@ -177,21 +181,21 @@ class AuthController extends Controller
         $user->sendEmailVerificationNotification();
 
         return response()->json([
-            'message' => 'Email updated successfully. Verification email sent.'
+            'message' => 'Email updated successfully. Verification email sent.',
         ]);
     }
 
     public function recoverPassword(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email'
+            'email' => 'required|email|exists:users,email',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
 
@@ -200,13 +204,13 @@ class AuthController extends Controller
         if ($status != Password::RESET_LINK_SENT) {
             return response()->json([
                 'status' => 'error',
-                'message' => $status
+                'message' => $status,
             ], 422);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => $status
+            'message' => $status,
         ]);
     }
 
@@ -221,24 +225,24 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
 
         $isFromUser = $this->compareToken($request->token, $request->email);
 
-        if (!$isFromUser) {
+        if (! $isFromUser) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid token',
-                'i18n' => 'api.invalidToken'
+                'i18n' => 'api.invalidToken',
             ], 422);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Valid token',
-            'i18n' => 'api.validToken'
+            'i18n' => 'api.validToken',
         ]);
     }
 
@@ -263,7 +267,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'error' => $validator->errors(),
-                'i18n' => 'api.validationError'
+                'i18n' => 'api.validationError',
             ], 422);
         }
 
@@ -277,13 +281,13 @@ class AuthController extends Controller
         if ($status != Password::PASSWORD_RESET) {
             return response()->json([
                 'status' => 'error',
-                'message' => $status
+                'message' => $status,
             ], 422);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => $status
+            'message' => $status,
         ]);
     }
 }

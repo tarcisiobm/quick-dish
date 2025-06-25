@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Laravel\Socialite\Facades\Socialite;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class ProviderController extends Controller
 {
@@ -16,15 +15,16 @@ class ProviderController extends Controller
     {
         try {
             $redirectUrl = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+
             return response()->json([
-                'redirect_url' => $redirectUrl
+                'redirect_url' => $redirectUrl,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error generating redirect link.',
                 'i18n' => 'api.errorGeneratingRedirectLink',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -38,7 +38,7 @@ class ProviderController extends Controller
             if ($user?->provider) {
                 return view('social-callback', [
                     'status' => 'error',
-                    'error' => 'User already have a provider.'
+                    'error' => 'User already have a provider.',
                 ]);
             }
 
@@ -46,20 +46,21 @@ class ProviderController extends Controller
             $updatedUser->currentAccessToken()?->delete();
 
             $token = $updatedUser->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
+
             return view('social-callback', [
                 'status' => 'success',
                 'token' => $token,
-                'user' => $updatedUser->toJson()
+                'user' => $updatedUser->toJson(),
             ]);
         } catch (\Exception $e) {
             return view('social-callback', [
                 'status' => 'error',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
 
-    private function updateOrCreateFromSocialite(User|null $user, string $provider, $socialUser)
+    private function updateOrCreateFromSocialite(?User $user, string $provider, $socialUser)
     {
         return User::updateOrCreate(
             ['email' => $socialUser->getEmail()],
