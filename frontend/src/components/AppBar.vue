@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useSidebarStore } from '@/stores/sidebar';
 import { ref, onMounted, onUnmounted } from 'vue';
+import { PhBasket, PhUserCircle, PhPencilSimple, PhSignOut, PhCaretDown } from '@phosphor-icons/vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -29,7 +30,7 @@ onUnmounted(() => {
   <nav :class="['superior-nav-bar d-flex justify-space-between px-2 w-100', { scrolled: isScrolled, 'sidebar-expanded': sidebar.isExpanded }]">
     <div @click="router.push('/')" class="d-flex align-center ga-3 cursor-pointer">
       <img width="45" src="@/assets/logo.svg" />
-      <h1 class="font-22 font-bold">Quick<span class="font-22 font-bold color-primary">Dish</span></h1>
+      <h1 class="font-22 bold">Quick<span class="font-22 bold color-primary">Dish</span></h1>
     </div>
 
     <div class="d-flex justify-center align-center ga-4">
@@ -41,11 +42,14 @@ onUnmounted(() => {
 
     <div class="d-flex justify-center align-center ga-4">
       <v-btn height="undefined" icon variant="outlined">
-        <v-icon height="48" color="text">mdi-basket-outline</v-icon>
+        <PhBasket size="22" class="color-text_low_opacity" />
       </v-btn>
 
       <div v-if="!auth.isAuthenticated" class="d-flex justify-center align-center ga-4">
-        <v-btn color="text" variant="text" prepend-icon="mdi-account-circle-outline" @click="router.push('/login')"> Login </v-btn>
+        <v-btn color="text" variant="text" @click="router.push('/login')">
+          <template v-slot:prepend class="d-flex align-center"> <PhUserCircle size="22" class="color-text_low_opacity mr-2" /> </template>
+          Login
+        </v-btn>
         <v-btn @click="router.push('/signup')">SignUp</v-btn>
       </div>
 
@@ -53,14 +57,14 @@ onUnmounted(() => {
         <v-avatar :image="auth.user?.avatar ?? require('@/assets/user-default.png')"></v-avatar>
         <p class="font-14 color-text">{{ auth.user?.name }}</p>
         <v-btn color="text" icon variant="text" height="undefined" density="compact">
-          <v-icon size="small">mdi-menu-down</v-icon>
+          <PhCaretDown weight="fill" size="12" class="color-text_low_opacity" />
         </v-btn>
         <v-menu activator="parent">
-          <v-list class="user-options-menu">
-            <v-list-item to="/account-settings" prepend-icon="mdi-pencil" base-color="text">
+          <v-list class="user-options-menu text">
+            <v-list-item to="/account-settings" base-color="text" :prepend-icon="PhPencilSimple">
               <v-list-item-title>{{ t('appBar.editProfile') }}</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="auth.logout" prepend-icon="mdi-logout-variant" base-color="error_dense">
+            <v-list-item @click="auth.logout" base-color="error_dense" :prepend-icon="PhSignOut">
               <v-list-item-title class="color-error_dense">{{ t('appBar.logout') }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -74,7 +78,7 @@ onUnmounted(() => {
 .superior-nav-bar {
   position: fixed;
   background-color: rgb(var(--v-theme-alt_background));
-  height: 56px;
+  height: 62px;
 }
 
 .superior-nav-bar::after {
@@ -101,7 +105,7 @@ onUnmounted(() => {
 }
 
 .user-card {
-  width: 234px;
+  max-width: 234px;
   height: 46px;
   gap: 10px;
   padding: 5px 15px;

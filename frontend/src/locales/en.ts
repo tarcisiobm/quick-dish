@@ -47,6 +47,13 @@ const fields: LocaleType = {
   submit: 'Submit'
 };
 
+// Themes
+
+const theme: LocaleType = {
+  enableLightMode: 'Enable Light Mode',
+  enableDarkMode: 'Enable Dark Mode'
+}
+
 // AppBar
 
 const appBar: LocaleType = {
@@ -94,11 +101,12 @@ const en: LocaleNamespace = {
   api: api,
   snackbar: snackbar,
   rules: rules,
+  theme: theme,
+  appBar: appBar,
   signUp: signUp,
   login: login,
   recover: recover,
   fields: fields,
-  appBar: appBar
 };
 
 export default en;

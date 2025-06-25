@@ -31,7 +31,10 @@ export default createVuetify({
           subtitle: '#2D3748',
           text: '#212529',
           text_low_opacity: '#212428',
-          border: '#C8C8C8'
+          border: '#C8C8C8',
+          window_border: '#C8C8C8',
+          social_btn_background: '#EEF0EF'
+
         }
       },
       dark: {
@@ -48,7 +51,9 @@ export default createVuetify({
           subtitle: '#E2E8F0',
           text: '#F1F3F5',
           text_low_opacity: '#D6D7D9',
-          border: '#C8C8C8'
+          border: '#28282A',
+          window_border: '#1E1E20',
+          social_btn_background: '#1A1A1D'
         }
       }
     }
@@ -58,11 +63,16 @@ export default createVuetify({
       style: [{ textTransform: 'none' }],
       variant: 'elevated',
       color: 'primary',
-      height: '40'
+      height: '40',
+      class: 'text bold',
     },
     VTextField: {
       color: 'primary',
       bgColor: 'input_background'
+    },
+    VCheckbox: {
+      color: 'text',
+      class: 'text color-text'
     }
   }
 });

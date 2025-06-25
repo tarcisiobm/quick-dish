@@ -2,41 +2,48 @@
 import { ref, computed, watch } from 'vue';
 import { useSidebarStore } from '@/stores/sidebar';
 import { useI18n } from 'vue-i18n';
-
-interface MenuItemLink {
-  title: string;
-  icon: string;
-  to: string;
-  children?: never;
-}
-
-interface MenuItemGroup {
-  title: string;
-  icon: string;
-  children: { title: string; to: string }[];
-  to?: never;
-}
-
-type MenuItem = MenuItemLink | MenuItemGroup;
-
-interface SearchResult {
-  title: string;
-  to: string;
-  icon: string;
-  parent?: string;
-}
+import { PhClipboardText, PhCalendarDots, PhLayout, PhBell, PhGear, PhQuestion, PhSidebarSimple, PhMoon, PhSun } from '@phosphor-icons/vue';
+import { useThemeStore } from '@/stores/theme';
+type PhosphorIcon = typeof PhClipboardText;
 
 const sidebar = useSidebarStore();
+const theme = useThemeStore();
 const { t } = useI18n();
 
 const searchValue = ref('');
 const openMenu = ref<string[]>([]);
 const lastOpenMenu = ref<string[]>([]);
 
-const menuItems: readonly MenuItem[] = [
+interface MenuItemLink {
+  title: string;
+  icon: PhosphorIcon | string;
+  to?: string;
+  action?: () => void;
+  children?: never;
+}
+
+interface MenuItemGroup {
+  title: string;
+  icon: PhosphorIcon | string;
+  children: { title: string; to: string }[];
+  to?: never;
+  action?: never;
+}
+
+type MenuItem = MenuItemLink | MenuItemGroup;
+
+interface SearchResult {
+  title: string;
+  to?: string;
+  action?: () => void;
+  icon: PhosphorIcon | string;
+  parent?: string;
+}
+
+const menuItems = computed<MenuItem[]>(() => [
   {
     title: 'Menu',
-    icon: 'mdi-clipboard-text-outline',
+    icon: PhClipboardText,
     children: [
       { title: 'Pizzas', to: '/menu/pizzas' },
       { title: 'Salads', to: '/menu/salads' }
@@ -44,24 +51,34 @@ const menuItems: readonly MenuItem[] = [
   },
   {
     title: 'Reservations',
-    icon: 'mdi-calendar-month-outline',
+    icon: PhCalendarDots,
     to: '/reservations'
   },
-  { title: 'Dashboard', icon: 'mdi-view-dashboard-outline', to: '/dashboard' },
-  { title: 'Notifications', icon: 'mdi-bell-outline', to: '/notifications' },
-  { title: 'Settings', icon: 'mdi-cog-outline', to: '/settings' },
-  { title: 'Help', icon: 'mdi-help-circle-outline', to: '/help' }
-];
+  { title: 'Dashboard', icon: PhLayout, to: '/dashboard' },
+  { title: 'Notifications', icon: PhBell, to: '/notifications' },
+  { title: 'Settings', icon: PhGear, to: '/settings' },
+  { title: 'Help', icon: PhQuestion, to: '/help' },
+  {
+    title: theme.isDark ? t('theme.enableLightMode') : t('theme.enableDarkMode'),
+    icon: theme.isDark ? PhSun : PhMoon,
+    action: theme.toggleTheme
+  }
+]);
 
 const searchResults = computed<SearchResult[]>(() => {
   if (!searchValue.value.trim()) return [];
 
   const search = searchValue.value.toLowerCase();
-  return menuItems.flatMap((item) => {
+  return menuItems.value.flatMap((item) => {
     const results: SearchResult[] = [];
 
-    if (item.to && item.title.toLowerCase().includes(search)) {
-      results.push({ title: item.title, to: item.to, icon: item.icon });
+    if ((item.to || item.action) && item.title.toLowerCase().includes(search)) {
+      results.push({
+        title: item.title,
+        to: item.to,
+        action: item.action,
+        icon: item.icon
+      });
     }
 
     if (item.children) {
@@ -100,16 +117,16 @@ watch(
 <template>
   <div class="sidebar" :class="{ 'sidebar--expanded': sidebar.isExpanded, 'sidebar--pinned': sidebar.isPinned }" @mouseenter="sidebar.expandSidebar" @mouseleave="sidebar.collapseSidebar">
     <div class="sidebar-header">
-      <v-text-field v-if="sidebar.isExpanded" v-model="searchValue" variant="outlined" prepend-inner-icon="mdi-magnify" :placeholder="t('fields.search')" density="compact" hide-details />
-      <v-icon v-else>mdi-magnify</v-icon>
+      <v-text-field v-if="sidebar.isExpanded" v-model="searchValue" color="text" variant="outlined" prepend-inner-icon="mdi-magnify" :placeholder="t('fields.search')" density="compact" hide-details />
+      <v-icon v-else class="search-icon">mdi-magnify</v-icon>
     </div>
 
     <div class="sidebar-menu d-flex flex-column" :class="{ 'justify-center': !searchValue.trim() }">
       <v-list v-model:opened="openMenu" nav density="compact" class="pa-0" style="background-color: transparent; overflow: hidden">
         <template v-if="searchValue.trim()">
-          <v-list-subheader v-if="searchResults.length">{{ t('fields.searchResults') }}</v-list-subheader>
+          <v-list-subheader v-if="searchResults.length" class="color-text">{{ t('fields.searchResults') }}</v-list-subheader>
           <template v-if="searchResults.length">
-            <v-list-item class="pa-0 menu-list-item" v-for="result in searchResults" :key="`${result.title}-${result.parent || ''}`" :to="result.to" :prepend-icon="result.icon" :title="result.title" :subtitle="result.parent" />
+            <v-list-item class="pa-0 menu-list-item" v-for="result in searchResults" :key="`${result.title}-${result.parent || ''}`" :to="result.to" :title="result.title" :subtitle="result.parent" :prepend-icon="result.icon" @click="result.action" />
           </template>
           <v-list-item v-else>
             <v-list-item-title class="text-center color-text">{{ t('fields.noResults') }}</v-list-item-title>
@@ -125,14 +142,16 @@ watch(
               <v-list-item v-for="sub in item.children" :key="sub.title" :to="sub.to" :title="sub.title" class="submenu-item menu-list-subitem" />
             </v-list-group>
 
-            <v-list-item class="pa-0 menu-list-item" v-else :prepend-icon="item.icon" :title="item.title" :to="item.to" />
+            <v-list-item class="pa-0 menu-list-item" v-else :prepend-icon="item.icon" :title="item.title" :to="item.to" @click="item.action" />
           </template>
         </template>
       </v-list>
     </div>
 
     <div class="sidebar-footer" :class="{ 'align-self-end': sidebar.isExpanded }">
-      <v-btn color="text" :icon="sidebar.isPinned ? 'mdi-pin' : 'mdi-pin-outline'" variant="text" height="undefined" @click="sidebar.togglePin" />
+      <v-btn color="text" :icon="PhSidebarSimple" variant="text" height="undefined" @click="sidebar.togglePin">
+        <PhSidebarSimple size="24" class="color-text" :weight="sidebar.isPinned ? 'fill' : 'regular'" />
+      </v-btn>
     </div>
   </div>
 </template>
@@ -143,7 +162,7 @@ watch(
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  top: 56px;
+  top: 62px;
   bottom: 0;
   width: 56px;
   padding: 0 16px;
@@ -161,6 +180,13 @@ watch(
 
 .sidebar--pinned {
   border-right: none !important;
+}
+
+.search-icon {
+  background-color: rgb(var(--v-theme-input_background));
+  border-radius: 100%;
+  padding: 16px;
+  border: 1.8px solid rgb(var(--v-theme-border));
 }
 
 .sidebar-header {

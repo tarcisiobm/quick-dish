@@ -37,26 +37,43 @@ const loginProvider = async (provider: string): Promise<void> => {
 <template>
   <div class="w-100 h-100 d-flex justify-center align-center">
     <v-form v-model="form" style="width: 430px" class="d-flex flex-column justify-center align-start">
-      <h3>{{ t('login.login') }}</h3>
-      <h4>{{ t('login.welcomeBack') }}</h4>
+      <h3 class="title font-32 bold">{{ t('login.login') }}</h3>
+      <h4 class="subtitle font-20 semibold">{{ t('login.welcomeBack') }}</h4>
 
       <v-text-field v-model="email" :label="t('fields.email')" :rules="[rules.required, rules.email]" required class="w-100" />
 
       <v-text-field v-model="password" :label="t('fields.password')" :rules="[rules.required]" required :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" class="w-100" />
 
       <div class="w-100 d-flex justify-space-between align-center">
-        <v-checkbox v-model="rememberMe" :label="t('login.rememberMe')" />
-        <RouterLink to="/recover-password">{{ t('login.forgotPassword') }}</RouterLink>
+        <v-checkbox hide-details v-model="rememberMe" :label="t('login.rememberMe')" />
+        <RouterLink to="/recover-password" class="color-title">{{ t('login.forgotPassword') }}</RouterLink>
       </div>
 
       <v-btn :disabled="!form" @click="login" class="w-100">
         {{ t('login.login') }}
       </v-btn>
-      <p>{{ t('login.orLoginWith') }}</p>
-      <v-btn @click="loginProvider('google')">Google</v-btn>
-      <v-btn @click="loginProvider('facebook')">Facebook</v-btn>
+      <div class="d-flex align-center w-100">
+        <v-divider color="title" style="opacity: 1 !important" class="flex-grow-1"></v-divider>
+        <p class="mx-4 flex-shrink-0">{{ t('login.orLoginWith') }}</p>
+        <v-divider color="title" style="opacity: 1 !important" class="flex-grow-1"></v-divider>
+      </div>
+      <div class="d-flex w-100 ga-8 justify-center align-center">
+        <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button"  height="55" @click="loginProvider('google')">
+          <v-img width="25" :src="require('@/assets/google-logo.svg')"></v-img>
+        </v-btn>
+        <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="loginProvider('google')">
+          <v-img width="25" :src="require('@/assets/facebook-logo.svg')"></v-img>
+        </v-btn>
+      </div>
     </v-form>
   </div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+
+.social-button {
+  min-width: 55px !important;
+  width: 55px !important;
+}
+
+</style>

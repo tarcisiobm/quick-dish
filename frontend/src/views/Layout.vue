@@ -17,10 +17,10 @@ const sidebarStore = useSidebarStore();
 
 <style scoped lang="scss">
 .main-view {
-  margin-top: 56px;
+  margin-top: 62px;
   border-top-left-radius: 4px;
-  border-left: 0.5px solid rgb(var(--v-theme-border));
-  border-top: 0.5px solid rgb(var(--v-theme-border));
+  border-left: 0.5px solid rgb(var(--v-theme-window_border));
+  border-top: 0.5px solid rgb(var(--v-theme-window_border));
 }
 .default {
   margin-left: 56px;
