@@ -46,11 +46,11 @@ onUnmounted(() => {
       </v-btn>
 
       <div v-if="!auth.isAuthenticated" class="d-flex justify-center align-center ga-4">
-        <v-btn color="text" variant="text" @click="router.push('/login')">
+        <v-btn class="btn-md" color="text" variant="text" @click="router.push('/login')">
           <template v-slot:prepend class="d-flex align-center"> <PhUserCircle size="22" class="color-text_low_opacity mr-2" /> </template>
           Login
         </v-btn>
-        <v-btn @click="router.push('/signup')">SignUp</v-btn>
+        <v-btn class="btn-md" @click="router.push('/signup')">SignUp</v-btn>
       </div>
 
       <div v-else width="36" class="user-card d-flex justify-center align-center">
@@ -77,6 +77,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .superior-nav-bar {
   position: fixed;
+  z-index: 10;
   background-color: rgb(var(--v-theme-alt_background));
   height: 62px;
 }

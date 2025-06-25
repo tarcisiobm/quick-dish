@@ -35,7 +35,7 @@ const loginProvider = async (provider: string): Promise<void> => {
 </script>
 
 <template>
-  <div class="w-100 h-100 d-flex justify-center align-center">
+  <div class="w-100 h-100 d-flex justify-center align-center main-window-container">
     <v-form v-model="form" style="width: 430px" class="d-flex flex-column justify-center align-start">
       <h3 class="title font-32 bold">{{ t('login.login') }}</h3>
       <h4 class="subtitle font-20 semibold">{{ t('login.welcomeBack') }}</h4>
@@ -49,31 +49,26 @@ const loginProvider = async (provider: string): Promise<void> => {
         <RouterLink to="/recover-password" class="color-title">{{ t('login.forgotPassword') }}</RouterLink>
       </div>
 
-      <v-btn :disabled="!form" @click="login" class="w-100">
-        {{ t('login.login') }}
-      </v-btn>
-      <div class="d-flex align-center w-100">
-        <v-divider color="title" style="opacity: 1 !important" class="flex-grow-1"></v-divider>
-        <p class="mx-4 flex-shrink-0">{{ t('login.orLoginWith') }}</p>
-        <v-divider color="title" style="opacity: 1 !important" class="flex-grow-1"></v-divider>
-      </div>
-      <div class="d-flex w-100 ga-8 justify-center align-center">
-        <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button"  height="55" @click="loginProvider('google')">
-          <v-img width="25" :src="require('@/assets/google-logo.svg')"></v-img>
+      <div class="d-flex flex-column ga-4 w-100">
+        <v-btn :disabled="!form" @click="login" class="w-100 btn-xl">
+          {{ t('login.login') }}
         </v-btn>
-        <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="loginProvider('google')">
-          <v-img width="25" :src="require('@/assets/facebook-logo.svg')"></v-img>
-        </v-btn>
+        <div class="d-flex align-center w-100">
+          <v-divider color="title" style="opacity: 1 !important" class="flex-grow-1"></v-divider>
+          <p class="mx-4 flex-shrink-0">{{ t('login.orLoginWith') }}</p>
+          <v-divider color="title" style="opacity: 1 !important" class="flex-grow-1"></v-divider>
+        </div>
+        <div class="d-flex w-100 ga-8 justify-center align-center">
+          <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="loginProvider('google')">
+            <v-img width="25" :src="require('@/assets/google-logo.svg')"></v-img>
+          </v-btn>
+          <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="loginProvider('google')">
+            <v-img width="25" :src="require('@/assets/facebook-logo.svg')"></v-img>
+          </v-btn>
+        </div>
       </div>
     </v-form>
   </div>
 </template>
 
-<style lang="scss">
-
-.social-button {
-  min-width: 55px !important;
-  width: 55px !important;
-}
-
-</style>
+<style lang="scss"></style>

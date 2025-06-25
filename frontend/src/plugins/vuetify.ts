@@ -63,8 +63,7 @@ export default createVuetify({
       style: [{ textTransform: 'none' }],
       variant: 'elevated',
       color: 'primary',
-      height: '40',
-      class: 'text bold',
+      class: 'text',
     },
     VTextField: {
       color: 'primary',
