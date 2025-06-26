@@ -6,6 +6,11 @@ use App\Http\Controllers\Api\ProviderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\PermissionGroupController;
+use App\Http\Controllers\Api\PermissionController;
+
+
 Route::prefix('/auth')->group(function () {
     Route::post('/sign-up', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -36,3 +41,8 @@ Route::prefix('/auth')->group(function () {
     Route::get('/{provider}/redirect', [ProviderController::class, 'redirectToProvider'])
         ->where('provider', 'google|facebook|apple');
 });
+
+
+Route::apiResource('permission-groups', PermissionGroupController::class);
+Route::apiResource('profiles', ProfileController::class);
+Route::apiResource('permissions', PermissionController::class);
