@@ -296,7 +296,7 @@ CREATE TABLE orders (
     user_id BIGINT NOT NULL,
     employee_id BIGINT NOT NULL,
     order_delivery_id BIGINT NULL,
-    table_id BIGINT NULL,
+    table_id INT NULL,
     order_type ENUM('dine-in', 'delivery', 'takeout') NOT NULL,
     status ENUM('pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled') DEFAULT 'pending' NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
