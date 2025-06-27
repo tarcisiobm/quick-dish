@@ -12,18 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permissions', function (Blueprint $table) {
-            $table->id(); // Corresponde a 'id INT AUTO_INCREMENT PRIMARY KEY'
+            $table->id();
 
-            // Chave estrangeira para permission_groups
-            $table->foreignId('permission_group_id') // Corresponde a 'permission_group_id INT NOT NULL'
-                  ->constrained('permission_groups') // Nome da tabela referenciada
+            $table->foreignId('permission_group_id')
+                  ->constrained('permission_groups')
                   ->onDelete('no action')
                   ->onUpdate('no action');
 
-            $table->string('name', 150)->nullable(false); // Corresponde a 'name VARCHAR(150) NOT NULL'
-            $table->string('description', 255)->nullable(); // Corresponde a 'description VARCHAR(255) NULL'
-            $table->timestamps(); // Cria created_at e updated_at
-            $table->softDeletes(); // Cria deleted_at
+            $table->string('name', 150)->nullable(false);
+            $table->string('description', 255)->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

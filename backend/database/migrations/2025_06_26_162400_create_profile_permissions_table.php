@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('profile_permissions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('profile_id')
+                  ->constrained('profiles');
+            $table->foreignId('permission_id')
+                ->constrained('permissions');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

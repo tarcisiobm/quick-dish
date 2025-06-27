@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permission_groups', function (Blueprint $table) {
-            $table->id(); // Corresponde a 'id INT AUTO_INCREMENT PRIMARY KEY'
-            $table->string('name', 150)->nullable(false); // Corresponde a 'name VARCHAR(150) NOT NULL'
-            $table->string('description', 255)->nullable(); // Corresponde a 'description VARCHAR(255) NULL'
-            $table->timestamps(); // Cria created_at e updated_at DATETIME NOT NULL
-            $table->softDeletes(); // Cria deleted_at DATETIME NULL
+            $table->id();
+            $table->string('name', 150)->nullable(false);
+            $table->string('description', 255)->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
