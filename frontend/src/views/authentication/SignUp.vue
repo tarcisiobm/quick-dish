@@ -62,7 +62,7 @@ const signUpProvider = async (provider: string): Promise<void> => {
           <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="signUpProvider('google')">
             <v-img width="25" :src="require('@/assets/google-logo.svg')"></v-img>
           </v-btn>
-          <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="signUpProvider('google')">
+          <v-btn variant="outlined" color="social_btn_background" class="border-color-border pa-0 social-button" height="55" @click="signUpProvider('facebook')">
             <v-img width="25" :src="require('@/assets/facebook-logo.svg')"></v-img>
           </v-btn>
         </div>

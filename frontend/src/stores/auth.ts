@@ -6,7 +6,6 @@ import createExceptions from '@/utils/exception';
 import api from '@/plugins/axios';
 import router from '@/router';
 import createWindow from '@/utils/window';
-const newWindow = createWindow();
 
 export interface AuthData {
   id: number;
@@ -33,179 +32,165 @@ export interface RegisterData {
   password_confirmation: string;
 }
 
+const AUTH_KEY = 'wasLoggedIn';
+const getStoredAuth = (): boolean => localStorage.getItem(AUTH_KEY) === 'true';
+const setStoredAuth = (value: boolean): void => localStorage.setItem(AUTH_KEY, String(value));
+const clearStoredAuth = (): void => localStorage.removeItem(AUTH_KEY);
+
 export const useAuthStore = defineStore('auth', () => {
   const { t } = useI18n();
-  const user = ref<AuthData | null>(null);
-  const token = ref<string | null>(null);
-  const recoverToken = ref<string | null>(null);
-  const recoverEmail = ref<string | null>(null);
   const snackbar = useSnackbarStore();
-  const authWindow = ref<Window | null>(null);
   const exception = createExceptions(snackbar, t);
 
-  const isAuthenticated = computed((): boolean => Boolean(token.value && user.value));
+  const user = ref<AuthData | null>(null);
+  const recoverEmail = ref('');
+  const authWindow = ref<Window | null>(null);
 
-  const authenticate = (userData: AuthData, userToken: string, rememberUser: boolean = true): void => {
-    if (!userData && !userToken) return;
-    console.log(userData);
-    user.value = userData;
-    token.value = userToken;
-    api.defaults.headers.common['Authorization'] = `Bearer ${userToken}`;
-    if (rememberUser) {
-      localStorage.setItem('auth_user', JSON.stringify(userData));
-      localStorage.setItem('auth_token', userToken);
-    }
-  };
+  const isAuthenticated = computed(() => Boolean(user.value));
 
-  const clearAuth = (): void => {
+  const resetState = () => {
     user.value = null;
-    token.value = null;
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
-    delete api.defaults.headers.common['Authorization'];
+    recoverEmail.value = '';
+    clearStoredAuth();
   };
 
-  const getUserSession = async (): Promise<void> => {
-    try {
-      const response = await api.get('/auth/user');
-      user.value = response.data;
-      localStorage.setItem('auth_user', JSON.stringify(response.data));
-    } catch (err) {
+  const setUser = (userData: AuthData) => {
+    user.value = userData;
+    setStoredAuth(true);
+  };
+
+  const handleError = (err: any, showSessionExpired = false) => {
+    if (showSessionExpired && getStoredAuth() && err.response?.status === 401) {
       snackbar.show(t('snackbar.sessionExpired'));
-      console.error(err);
-      clearAuth();
     }
+    exception.show(err);
   };
 
-  const initializeAuth = async (): Promise<void> => {
-    const savedToken = localStorage.getItem('auth_token');
-    const savedUser = localStorage.getItem('auth_user');
-    if (savedToken && savedUser) {
-      token.value = savedToken;
-      user.value = JSON.parse(savedUser);
-      api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+  const getUserSession = async () => {
+    const response = await api.get('/auth/user');
+    setUser(response.data);
+  };
+
+  const initializeAuth = async () => {
+    try {
       await getUserSession();
+    } catch (error) {
+      handleError(error, true);
+      resetState();
     }
   };
 
-  const register = async (data: RegisterData): Promise<void> => {
+  const register = async (data: RegisterData) => {
     try {
-      const response = await api.post('/auth/sign-up', data);
-      authenticate(response.data.user, response.data.token);
-      router.push('/');
+      await api.post('/auth/sign-up', data);
       snackbar.success(t('snackbar.accountCreatedSuccessfully'));
+      router.push('/verify-email');
     } catch (err) {
-      exception.show(err);
-      console.error(err);
+      handleError(err);
     }
   };
 
-  const login = async (data: LoginData, rememberUser: boolean): Promise<void> => {
+  const login = async (credentials: LoginData) => {
     try {
-      const response = await api.post('/auth/login', data);
-      authenticate(response.data.user, response.data.token, rememberUser);
-      router.push('/');
+      const response = await api.post('/auth/login', credentials);
+      setUser(response.data.user);
       snackbar.success(t('snackbar.loginSuccessful'));
+      router.push('/');
     } catch (err) {
-      exception.show(err);
-      console.error(err);
+      handleError(err);
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async () => {
     try {
-      if (token.value) await api.post('/auth/logout');
+      await api.post('/auth/logout');
     } catch (err) {
-      exception.show(err);
-      console.error(err);
+      handleError(err);
     } finally {
-      clearAuth();
-      router.push('/');
+      resetState();
       snackbar.success(t('snackbar.logoutSuccessful'));
-    }
-  };
-
-  const authenticateProvider = async (provider: string): Promise<void> => {
-    try {
-      const response = await api.get(`/auth/${provider}/redirect`);
-      const redirectUrl = response.data.redirect_url;
-      authWindow.value = newWindow.open(redirectUrl, 'Authentication');
-    } catch (err) {
-      exception.show(err);
-      console.error(err);
-    }
-  };
-
-  const handleAuthMessage = (event: any) => {
-    if (event.origin !== process.env.VUE_APP_BACKEND_URL) return;
-    const { status, token, user } = event.data;
-
-    if (status === 'success') {
-      authenticate(user, token, true);
       router.push('/');
-      return;
     }
-    if (authWindow.value) authWindow.value.close();
+  };
+
+  const closeAuthWindow = () => {
+    if (!authWindow.value) return;
+    authWindow.value.close();
+    authWindow.value = null;
     window.removeEventListener('message', handleAuthMessage);
   };
 
-  const recoverPassword = async (email: string): Promise<void> => {
-    if (!email || !email.trim()) return;
+  const handleAuthMessage = (event: MessageEvent) => {
+    if (event.origin !== process.env.VUE_APP_BACKEND_URL) return;
+
+    const { status, user: userData, error } = event.data;
+    closeAuthWindow();
+
+    if (status === 'success' && userData) {
+      setUser(userData);
+      snackbar.success(t('snackbar.loginSuccessful'));
+      router.push('/');
+      return;
+    }
+    snackbar.error(error || t('snackbar.authenticationError'));
+  };
+
+  const authenticateProvider = async (provider: string) => {
+    try {
+      const response = await api.get(`/auth/${provider}/redirect`);
+      authWindow.value = createWindow().open(response.data.redirect_url, 'Authentication');
+      window.addEventListener('message', handleAuthMessage);
+    } catch (err) {
+      handleError(err);
+    }
+  };
+
+  const recoverPassword = async (email: string) => {
+    if (!email?.trim()) return;
     try {
       await api.post('/auth/recover-password', { email });
       recoverEmail.value = email;
       router.push('/recover-password/verification');
     } catch (err) {
-      exception.show(err);
-      console.error(err);
-    }
-  };
-  const validateToken = async (token: string): Promise<void> => {
-    if (!token || !token.trim()) return;
-    try {
-      await api.post('/auth/validate-token', {
-        token,
-        email: recoverEmail.value
-      });
-      recoverToken.value = token;
-      snackbar.success(t('snackbar.tokenValidated'));
-      router.push('/recover-password/new');
-    } catch (err) {
-      exception.show(err);
-      console.error(err);
+      handleError(err);
     }
   };
 
-  const setNewPassword = async (password: string, password_confirmation: string): Promise<void> => {
-    if (!password || !password_confirmation || !password.trim() || !password_confirmation.trim()) return;
+  const validateToken = async (token: string) => {
+    if (!token?.trim()) return;
+    try {
+      await api.post('/auth/validate-token', { token, email: recoverEmail.value });
+      snackbar.success(t('snackbar.tokenValidated'));
+      router.push('/recover-password/new');
+    } catch (err) {
+      handleError(err);
+    }
+  };
+
+  const setNewPassword = async (password: string, passwordConfirmation: string) => {
+    if (!password?.trim() || !passwordConfirmation?.trim()) return;
     try {
       await api.post('/auth/reset-password', {
         email: recoverEmail.value,
-        token: recoverToken.value,
         password,
-        password_confirmation
+        password_confirmation: passwordConfirmation
       });
       snackbar.success(t('snackbar.passwordChanged'));
       router.push('/login');
     } catch (err) {
-      exception.show(err);
-      console.error(err);
+      handleError(err);
     }
   };
 
   return {
     user,
-    token,
     isAuthenticated,
-    authenticate,
-    clearAuth,
+    resetState,
     initializeAuth,
-    getUserSession,
     register,
     login,
     logout,
     authenticateProvider,
-    handleAuthMessage,
     recoverPassword,
     validateToken,
     setNewPassword
