@@ -23,6 +23,16 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        $existingUser = User::where('email', $request->email)->first();
+
+        if ($existingUser?->hasVerifiedEmail()) {
+            return response()->json([
+                "status" => "error",
+                "message" => "The email has already been taken.",
+                "i18n" => "api.theEmailHasAlreadyBeenTaken"
+            ], 409);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -65,7 +75,7 @@ class AuthController extends Controller
 
         return response()
             ->json(['message' => 'User authenticated successfully.', 'user' => $user])
-            ->cookie('auth_token', $token, 10080, '/', null, true, true, false, 'Strict');
+            ->cookie('auth_token', $token, 60 * 24 * 7, '/', null, true, true, false, 'Strict');
     }
 
     public function logout(Request $request): JsonResponse

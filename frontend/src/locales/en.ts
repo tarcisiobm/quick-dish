@@ -5,9 +5,8 @@ import type { LocaleNamespace } from '@/locales/i18n';
 
 const api: LocaleType = {
   theEmailHasAlreadyBeenTaken: 'The email has already been taken.',
-  invalidLoginCredentials: 'Invalid login credentials.',
+  invalidCredentials: 'Invalid login credentials.',
   emailNotVerified: 'Email not verified.',
-  errorGeneratingRedirectLink: 'Error generationg redirect link.',
   emailAlreadyVerified: 'Email already verified.',
   validationError: 'Validation error.'
 };
