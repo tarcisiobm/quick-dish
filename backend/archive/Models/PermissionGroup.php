@@ -17,7 +17,6 @@ class PermissionGroup extends Model
         'description',
     ];
 
-    // Relacionamentos (adicionaremos aqui à medida que criarmos os outros models)
     public function permissions()
     {
         return $this->hasMany(Permission::class);

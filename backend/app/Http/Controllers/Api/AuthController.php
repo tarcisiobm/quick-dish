@@ -43,13 +43,21 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($credentials)) {
-            return $this->error('Invalid login credentials.', 401);
+            return response()->json([
+                "status" => "error",
+                "message" => "Invalid login credentials",
+                "i18n" => "api.invalidCredentials"
+            ], 401);
         }
 
         $user = Auth::user();
 
         if (!$user->hasVerifiedEmail()) {
-            return $this->error('Email not verified', 403);
+            return response()->json([
+                "status" => "error",
+                "message" => "Email not verified",
+                "i18n" => "api.emailNotVerified"
+            ], 401);
         }
 
         $user->tokens()->delete();
@@ -90,7 +98,11 @@ class AuthController extends Controller
         $user = $request->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return $this->error('Current password is incorrect.', 403);
+            return response()->json([
+                "status" => "error",
+                "message" => "Current password is incorrect.",
+                "i18n" => "api.currentPasswordIncorrect"
+            ], 403);
         }
 
         $user->update(['password' => Hash::make($request->new_password)]);
@@ -134,10 +146,18 @@ class AuthController extends Controller
         ]);
 
         if (!Password::getRepository()->exists($request->email, $request->token)) {
-            return $this->error('Invalid token', 422);
+            return response()->json([
+                "status" => "error",
+                "message" => "Invalid token.",
+                "i18n" => "api.invalidToken",
+            ], 422);
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Valid token']);
+        return response()->json([
+            "status" => "success",
+            "message" => "Valid token",
+            "i18n" => "api.validToken"
+        ]);
     }
 
     public function resetPassword(Request $request): JsonResponse
@@ -162,7 +182,7 @@ class AuthController extends Controller
     {
         return response()
             ->json($data)
-            ->cookie('auth_token', '', -1, '/', null, true, true, false, 'Strict');
+            ->cookie('auth_token');
     }
 
     private function error(string $message, int $status = 422): JsonResponse

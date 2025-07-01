@@ -18,19 +18,18 @@ class Profile extends Model
         'status',
     ];
 
-    // Relacionamentos
     public function users()
     {
-        return $this->hasMany(User::class); 
+        return $this->hasMany(User::class);
     }
 
     public function profilePermissions()
     {
-        return $this->hasMany(ProfilePermission::class); 
+        return $this->hasMany(ProfilePermission::class);
     }
 
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class, 'profile_permissions'); 
+        return $this->belongsToMany(Permission::class, 'profile_permissions');
     }
 }
