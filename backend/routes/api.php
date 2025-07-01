@@ -1,15 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\ProviderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Api\ProfileController;
-use App\Http\Controllers\Api\PermissionGroupController;
-use App\Http\Controllers\Api\PermissionController;
-
 
 Route::prefix('/auth')->group(function () {
     Route::post('/sign-up', [AuthController::class, 'register']);
@@ -30,7 +26,7 @@ Route::prefix('/auth')->group(function () {
         ->middleware('throttle:6,1');
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/user', fn (Request $request) => $request->user());
+        Route::get('/user', fn(Request $request) => $request->user());
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
@@ -42,7 +38,11 @@ Route::prefix('/auth')->group(function () {
         ->where('provider', 'google|facebook|apple');
 });
 
+Route::prefix('categories')->group(function(){
+    Route::post('/', [CategoryController::class, 'store']);
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{id}', [CategoryController::class, 'show']);
+    Route::put('/{id}', [CategoryController::class, 'update']);
+    Route::delete('/{id}', [CategoryController::class, 'destroy']);
+});
 
-Route::apiResource('permission-groups', PermissionGroupController::class);
-Route::apiResource('profiles', ProfileController::class);
-Route::apiResource('permissions', PermissionController::class);
