@@ -8,15 +8,12 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
-    private const TOKEN_EXPIRY_DAYS = 7;
-    private const COOKIE_EXPIRY_MINUTES = 60 * 24 * 7;
-
     public function register(Request $request): JsonResponse
     {
         $request->validate([
@@ -26,16 +23,12 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $existingUser = User::where('email', $request->email)->first();
-
-        if ($existingUser?->hasVerifiedEmail()) {
-            return $this->errorResponse('The email has already been taken.', 'api.theEmailHasAlreadyBeenTaken', 409);
-        }
-
-        $user = User::updateOrCreate(
-            ['email' => $request->email],
-            $request->only(['name', 'phone']) + ['password' => Hash::make($request->password)]
-        );
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+        ]);
 
         event(new Registered($user));
 
@@ -49,37 +42,38 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return $this->errorResponse('Invalid login credentials.', 'api.invalidLoginCredentials', 401);
+        if (!Auth::attempt($credentials)) {
+            return $this->error('Invalid login credentials.', 401);
         }
+
+        $user = Auth::user();
 
         if (!$user->hasVerifiedEmail()) {
-            return $this->errorResponse('Email not verified', 'api.emailNotVerified', 403);
+            return $this->error('Email not verified', 403);
         }
 
-        return $this->authenticateUser($user);
+        $user->tokens()->delete();
+        $token = $user->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
+
+        return response()
+            ->json(['message' => 'User authenticated successfully.', 'user' => $user])
+            ->cookie('auth_token', $token, 10080, '/', null, true, true, false, 'Strict');
     }
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()?->delete();
-        return $this->clearAuthCookie(['message' => 'Logged out successfully.']);
+        $request->user()->currentAccessToken()->delete();
+        return $this->clearCookie(['message' => 'Logged out successfully.']);
     }
 
     public function logoutAll(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
-        return $this->clearAuthCookie(['message' => 'Logged out from all devices successfully.']);
+        return $this->clearCookie(['message' => 'Logged out from all devices successfully.']);
     }
 
     public function me(Request $request): JsonResponse
     {
-        if (!$request->user()) {
-            return $this->errorResponse('Unauthenticated', null, 401);
-        }
-
         return response()->json([
             'user' => $request->user(),
             'message' => 'User recovered successfully.',
@@ -96,7 +90,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return $this->errorResponse('Current password is incorrect.', 'api.currentPasswordIncorrect', 403);
+            return $this->error('Current password is incorrect.', 403);
         }
 
         $user->update(['password' => Hash::make($request->new_password)]);
@@ -127,29 +121,23 @@ class AuthController extends Controller
 
         $status = Password::sendResetLink($request->only('email'));
 
-        if ($status !== Password::RESET_LINK_SENT) {
-            return $this->errorResponse($status, null, 422);
-        }
-
-        return response()->json(['status' => 'success', 'message' => $status]);
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['status' => 'success', 'message' => $status])
+            : $this->error($status, 422);
     }
 
     public function validateToken(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'token' => 'required|string',
             'email' => 'required|email|exists:users,email',
         ]);
 
-        if (!$this->isValidPasswordResetToken($data['token'], $data['email'])) {
-            return $this->errorResponse('Invalid token', 'api.invalidToken', 422);
+        if (!Password::getRepository()->exists($request->email, $request->token)) {
+            return $this->error('Invalid token', 422);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Valid token',
-            'i18n' => 'api.validToken',
-        ]);
+        return response()->json(['status' => 'success', 'message' => 'Valid token']);
     }
 
     public function resetPassword(Request $request): JsonResponse
@@ -165,47 +153,20 @@ class AuthController extends Controller
             event(new PasswordReset($user));
         });
 
-        if ($status !== Password::PASSWORD_RESET) {
-            return $this->errorResponse($status, null, 422);
-        }
-
-        return response()->json(['status' => 'success', 'message' => $status]);
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['status' => 'success', 'message' => $status])
+            : $this->error($status, 422);
     }
 
-    private function isValidPasswordResetToken(string $token, string $email): bool
-    {
-        $record = DB::table('password_reset_tokens')->where('email', $email)->first();
-        return $record && Hash::check($token, $record->token);
-    }
-
-    private function authenticateUser(User $user): JsonResponse
-    {
-        $user->currentAccessToken()?->delete();
-        $token = $user->createToken('auth-token', ['*'], now()->addDays(self::TOKEN_EXPIRY_DAYS))->plainTextToken;
-
-        return response()
-            ->json(['message' => 'User authenticated successfully.', 'user' => $user])
-            ->cookie('auth_token', $token, self::COOKIE_EXPIRY_MINUTES, '/', null, true, true, false, 'Strict');
-    }
-
-    private function clearAuthCookie(array $data): JsonResponse
+    private function clearCookie(array $data): JsonResponse
     {
         return response()
             ->json($data)
             ->cookie('auth_token', '', -1, '/', null, true, true, false, 'Strict');
     }
 
-    private function errorResponse(string $message, ?string $i18n = null, int $status = 422): JsonResponse
+    private function error(string $message, int $status = 422): JsonResponse
     {
-        $response = [
-            'status' => 'error',
-            'message' => $message,
-        ];
-
-        if ($i18n) {
-            $response['i18n'] = $i18n;
-        }
-
-        return response()->json($response, $status);
+        return response()->json(['status' => 'error', 'message' => $message], $status);
     }
 }

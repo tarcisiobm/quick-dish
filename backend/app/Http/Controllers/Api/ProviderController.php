@@ -8,28 +8,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 class ProviderController extends Controller
 {
-    private const TOKEN_EXPIRY_DAYS = 7;
-    private const RANDOM_PASSWORD_LENGTH = 24;
-
     public function redirectToProvider(string $provider): JsonResponse
     {
         try {
-            $redirectUrl = Socialite::driver($provider)
-                ->stateless()
-                ->redirect()
-                ->getTargetUrl();
-
+            $redirectUrl = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
             return response()->json(['redirect_url' => $redirectUrl]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error generating redirect link.',
-                'i18n' => 'api.errorGeneratingRedirectLink',
-            ], 500);
+        } catch (\Exception) {
+            return response()->json(['error' => 'Error generating redirect link.'], 500);
         }
     }
 
@@ -39,64 +27,37 @@ class ProviderController extends Controller
             $socialUser = Socialite::driver($provider)->stateless()->user();
             $existingUser = User::where('email', $socialUser->getEmail())->first();
 
-            if ($this->hasConflictingProvider($existingUser, $provider)) {
-                return $this->errorResponse('User already has a different provider.');
+            if ($existingUser?->provider && $existingUser->provider !== $provider) {
+                return $this->errorView('User already has a different provider.');
             }
 
-            $user = $this->createOrUpdateUser($existingUser, $provider, $socialUser);
-            $token = $this->generateAuthToken($user);
+            $user = User::updateOrCreate(
+                ['email' => $socialUser->getEmail()],
+                [
+                    'name' => $socialUser->getName() ?? $socialUser->getNickname(),
+                    'email_verified_at' => now(),
+                    'password' => $existingUser?->password ?? Hash::make(Str::random(24)),
+                    'provider' => $provider,
+                    'provider_id' => $socialUser->getId(),
+                    'avatar' => $socialUser->getAvatar(),
+                ]
+            );
 
-            return $this->successResponse($user, $token);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage());
+            $user->tokens()->delete();
+            $token = $user->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
+
+            return view('social-callback', [
+                'status' => 'success',
+                'token' => $token,
+                'user' => $user->toJson(),
+            ]);
+        } catch (\Exception) {
+            return $this->errorView('Authentication failed. Please try again.');
         }
     }
 
-    private function hasConflictingProvider(?User $user, string $provider): bool
+    private function errorView(string $error)
     {
-        return $user?->provider && $user->provider !== $provider;
-    }
-
-    private function createOrUpdateUser(?User $existingUser, string $provider, SocialiteUser $socialUser): User
-    {
-        return User::updateOrCreate(
-            ['email' => $socialUser->getEmail()],
-            [
-                'name' => $socialUser->getName() ?? $socialUser->getNickname(),
-                'email_verified_at' => now(),
-                'password' => $existingUser?->password ?? Hash::make(Str::random(self::RANDOM_PASSWORD_LENGTH)),
-                'provider' => $provider,
-                'provider_id' => $socialUser->getId(),
-                'avatar' => $socialUser->getAvatar(),
-            ]
-        );
-    }
-
-    private function generateAuthToken(User $user): string
-    {
-        $user->currentAccessToken()?->delete();
-
-        return $user->createToken(
-            'auth-token',
-            ['*'],
-            now()->addDays(self::TOKEN_EXPIRY_DAYS)
-        )->plainTextToken;
-    }
-
-    private function successResponse(User $user, string $token)
-    {
-        return view('social-callback', [
-            'status' => 'success',
-            'token' => $token,
-            'user' => $user->toJson(),
-        ]);
-    }
-
-    private function errorResponse(string $error)
-    {
-        return view('social-callback', [
-            'status' => 'error',
-            'error' => $error,
-        ]);
+        return view('social-callback', ['status' => 'error', 'error' => $error]);
     }
 }
