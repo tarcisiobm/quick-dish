@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Item extends Model
+class Product extends Model
 {
-    use SoftDeletes;
+  use SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -24,8 +24,8 @@ class Item extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function additionals()
+    public function ingredients()
     {
-        return $this->belongsToMany(Additional::class, 'item_additionals');
+        return $this->belongsToMany(Ingredient::class, 'product_ingredient');
     }
 }
