@@ -15,11 +15,11 @@ return new class extends Migration
         Schema::create('ingredients', function (Blueprint $table) {
             $table->id();
             $table->string("name", 150);
-            $table->text("description");
+            $table->text("description")->nullable();
             $table->decimal("unit_price", 10, 2);
             $table->decimal("quantity", 10, 2);
-            $table->decimal("min_quantity", 10, 2);
-            $table->decimal("max_quantity", 10, 2);
+            $table->decimal("min_quantity", 10, 2)->nullable();
+            $table->decimal("max_quantity", 10, 2)->nullable();
             $table->boolean("is_additional")->default(false);
             $table->boolean("status")->default(true);
             $table->foreignId('supplier_id')->constrained('suppliers');

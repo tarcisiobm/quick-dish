@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
+use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\ProviderController;
+use App\Http\Controllers\Api\UnitMeasureController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -46,3 +49,26 @@ Route::prefix('categories')->group(function(){
     Route::delete('/{id}', [CategoryController::class, 'destroy']);
 });
 
+Route::prefix('suppliers')->group(function(){
+    Route::post('/', [SupplierController::class, 'store']);
+    Route::get('/', [SupplierController::class, 'index']);
+    Route::get('/{id}', [SupplierController::class, 'show']);
+    Route::put('/{id}', [SupplierController::class, 'update']);
+    Route::delete('/{id}', [SupplierController::class, 'destroy']);
+});
+
+Route::prefix('unitMeasures')->group(function(){
+    Route::post('/', [UnitMeasureController::class, 'store']);
+    Route::get('/', [UnitMeasureController::class, 'index']);
+    Route::get('/{id}', [UnitMeasureController::class, 'show']);
+    Route::put('/{id}', [UnitMeasureController::class, 'update']);
+    Route::delete('/{id}', [UnitMeasureController::class, 'destroy']);
+});
+
+Route::prefix('ingredients')->group(function(){
+    Route::post('/', [IngredientController::class, 'store']);
+    Route::get('/', [IngredientController::class, 'index']);
+    Route::get('/{id}', [IngredientController::class, 'show']);
+    Route::put('/{id}', [IngredientController::class, 'update']);
+    Route::delete('/{id}', [IngredientController::class, 'destroy']);
+});

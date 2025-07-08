@@ -17,15 +17,18 @@ class Ingredient extends Model
         "min_quantity",
         "max_quantity",
         "is_additional",
-        "status"
+        "status",
+        "supplier_id",
+        "unit_measure_id"
     ];
 
-    public function supplier(){
+    public function supplier()
+    {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function unitMeasure(){
+    public function unitMeasure()
+    {
         return $this->belongsTo(UnitMeasure::class);
     }
 }
-
