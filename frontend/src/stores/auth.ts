@@ -193,6 +193,7 @@ export const useAuthStore = defineStore('auth', () => {
     authenticateProvider,
     recoverPassword,
     validateToken,
-    setNewPassword
+    setNewPassword,
+    handleAuthMessage
   };
 });

@@ -49,11 +49,6 @@ const router = createRouter({
         }
       ]
     },
-    // {
-    //   path: '/login',
-    //   name: 'login',
-    //   component: () => import('@/views/authentication/Login.vue')
-    // },
     {
       path: '/404',
       name: '404',

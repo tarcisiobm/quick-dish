@@ -3,9 +3,7 @@ import { RouterView } from 'vue-router';
 import snackbar from '@/components/SnackBar.vue';
 import { onBeforeUnmount, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useThemeStore } from './stores/theme';
 const auth = useAuthStore();
-const theme = useThemeStore();
 
 onMounted(() => {
   auth.initializeAuth();
@@ -18,7 +16,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <v-app :theme="theme.isDark ? 'dark' : 'light'">
+  <v-app>
     <RouterView />
     <snackbar></snackbar>
   </v-app>

@@ -54,7 +54,7 @@ onUnmounted(() => {
       </div>
 
       <div v-else width="36" class="user-card d-flex justify-center align-center">
-        <v-avatar :image="auth.user?.avatar ?? require('@/assets/user-default.png')"></v-avatar>
+        <img :src="auth.user?.avatar ?? require('@/assets/user-default.png')" class="user-avatar-image"></img>
         <p class="font-14 color-text">{{ auth.user?.name }}</p>
         <v-btn color="text" icon variant="text" height="undefined" density="compact">
           <PhCaretDown weight="fill" size="12" class="color-text_low_opacity" />
@@ -99,6 +99,16 @@ onUnmounted(() => {
 .superior-nav-bar.scrolled::after {
   border-color: rgb(var(--v-theme-border));
 }
+
+.user-avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  overflow: hidden;
+  display: block;
+}
+
 
 .nav-link {
   text-decoration: none;
