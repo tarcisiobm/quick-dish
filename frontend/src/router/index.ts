@@ -41,9 +41,19 @@ const router = createRouter({
           path: 'email-verified',
           name: 'emailverified',
           component: () => import('@/views/email-verification/EmailVerified.vue')
+        },
+        {
+          path: 'reservations',
+          name: 'reservations',
+          component: () => import('@/views/Reservation.vue')
         }
       ]
     },
+    // {
+    //   path: '/login',
+    //   name: 'login',
+    //   component: () => import('@/views/authentication/Login.vue')
+    // },
     {
       path: '/404',
       name: '404',
