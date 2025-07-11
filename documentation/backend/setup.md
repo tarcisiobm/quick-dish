@@ -47,7 +47,7 @@
 
 6. **Inicie o servidor de desenvolvimento:**
     ```bash
-    php artisan serve --port=3100
+    php artisan serve
     ```
 
 O backend estará rodando em `http://localhost:3100` (ou porta configurada).
