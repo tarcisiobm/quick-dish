@@ -11,9 +11,8 @@ return new class extends Migration
         Schema::create('product_ingredient', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products');
-            $table->decimal("quantity", 10, 2);
             $table->foreignId('ingredient_id')->constrained('ingredients');
-            $table->boolean('status')->default(true);
+            $table->decimal("quantity", 10, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

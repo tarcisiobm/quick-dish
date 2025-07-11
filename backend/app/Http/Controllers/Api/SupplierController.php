@@ -12,17 +12,17 @@ class SupplierController extends BaseApiController
 
     protected array $storeRules = [
         'name' => 'required|string|max:150',
-        'cnpj' => 'nullable|string|max:20',
-        'phone' => 'nullable|string|max:20',
-        'email' => 'nullable|string|max:150',
-        'status' => 'boolean'
+        'cnpj' => 'sometimes|nullable|string|max:20',
+        'phone' => 'sometimes|nullable|string|max:20',
+        'email' => 'sometimes|nullable|string|max:150',
+        'status' => 'sometimes|boolean'
     ];
 
     protected array $updateRules = [
-        'name' => 'required|string|max:150',
-        'cnpj' => 'nullable|string|max:20',
-        'phone' => 'nullable|string|max:20',
-        'email' => 'nullable|string|max:150',
-        'status' => 'boolean'
+        'name' => 'sometimes|string|max:150',
+        'cnpj' => 'sometimes|nullable|string|max:20',
+        'phone' => 'sometimes|nullable|string|max:20',
+        'email' => 'sometimes|nullable|string|max:150',
+        'status' => 'sometimes|boolean'
     ];
 }

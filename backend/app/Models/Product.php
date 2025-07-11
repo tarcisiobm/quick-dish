@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-  use SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -26,6 +26,8 @@ class Product extends Model
 
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class, 'product_ingredient');
+        return $this->belongsToMany(Ingredient::class, 'product_ingredient')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

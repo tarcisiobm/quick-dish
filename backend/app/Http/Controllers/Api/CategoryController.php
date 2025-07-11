@@ -11,16 +11,16 @@ class CategoryController extends BaseApiController
 
     protected array $storeRules = [
         'name' => 'required|string|max:150',
-        'description' => 'nullable|string|max:255',
-        'image' => 'nullable|image|max:2048',
-        'display_order' => 'nullable|integer|min:1'
+        'description' => 'sometimes|nullable|string|max:255',
+        'image' => 'sometimes|nullable|image|max:2048',
+        'display_order' => 'sometimes|nullable|integer|min:1'
     ];
 
     protected array $updateRules = [
-        'name' => 'nullable|string|max:150',
-        'description' => 'nullable|string|max:255',
-        'image' => 'nullable|image|max:2048',
-        'display_order' => 'nullable|integer|min:1',
-        'status' => 'boolean'
+        'name' => 'sometimes|string|max:150',
+        'description' => 'sometimes|nullable|string|max:255',
+        'image' => 'sometimes|nullable|image|max:2048',
+        'display_order' => 'sometimes|nullable|integer|min:1',
+        'status' => 'sometimes|boolean'
     ];
 }

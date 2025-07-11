@@ -152,7 +152,6 @@ abstract class BaseApiController extends Controller
         }
     }
 
-
     protected function prepareRelationData(array $data, array $config): array
     {
         $relationData = [];
