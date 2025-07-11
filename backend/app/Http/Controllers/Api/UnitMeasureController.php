@@ -8,7 +8,7 @@ use App\Http\Controllers\BaseApiController;
 class UnitMeasureController extends BaseApiController
 {
     protected $model = UnitMeasure::class;
-    protected $name = 'Unit measure';
+    protected $name = 'UnitMeasure';
 
     protected $storeRules = [
         'name' => 'required|string|max:150',
