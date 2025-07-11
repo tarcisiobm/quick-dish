@@ -9,19 +9,27 @@ use Illuminate\Support\Facades\Validator;
 
 abstract class BaseApiController extends Controller
 {
-    protected $model;
-    protected $name;
-    protected $storeRules = [];
-    protected $updateRules = [];
+    protected string $model;
+    protected string $name;
+    protected array $storeRules = [];
+    protected array $updateRules = [];
+    protected array $relations = [];
+    protected array $with = [];
 
     /**
      * Display a listing of the resource.
      */
     public function index(): JsonResponse
     {
+        $query = $this->model::query();
+
+        if ($this->with) {
+            $query->with($this->with);
+        }
+
         return response()->json([
             "status" => "success",
-            "data" => $this->model::all()
+            "data" => $query->get()
         ]);
     }
 
@@ -36,13 +44,15 @@ abstract class BaseApiController extends Controller
             return response()->json(["errors" => $validator->errors()], 422);
         }
 
-        $resource = $this->model::create($request->all());
+        $resource = $this->model::create($request->except($this->getRelationFields()));
+
+        $this->handleRelations($resource, $request);
 
         return response()->json([
             "status" => "success",
-            "message" => "{$this->name} created sucefully.",
+            "message" => "{$this->name} created successfully.",
             "i18n" => "api." . strtolower($this->name) . "Created",
-            "data" => $resource->fresh()
+            "data" => $this->loadWithRelations($resource)
         ], 201);
     }
 
@@ -51,7 +61,13 @@ abstract class BaseApiController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $resource = $this->model::find($id);
+        $query = $this->model::query();
+
+        if ($this->with) {
+            $query->with($this->with);
+        }
+
+        $resource = $query->find($id);
 
         if (!$resource) {
             return response()->json([
@@ -70,7 +86,7 @@ abstract class BaseApiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $resource = $this->model::find($id);
 
@@ -88,11 +104,14 @@ abstract class BaseApiController extends Controller
             return response()->json(["errors" => $validator->errors()], 422);
         }
 
-        $resource->update($request->all());
+        $resource->update($request->except($this->getRelationFields()));
+
+        $this->handleRelations($resource, $request);
 
         return response()->json([
             "status" => "success",
-            "data" => $resource,
+            "data" => $this->loadWithRelations($resource),
+            "message" => "{$this->name} updated successfully.",
             "i18n" => "api." . strtolower($this->name) . "Updated"
         ]);
     }
@@ -116,8 +135,52 @@ abstract class BaseApiController extends Controller
 
         return response()->json([
             "status" => "success",
-            "message" => "{$this->name} deleted sucefully.",
+            "message" => "{$this->name} deleted successfully.",
             "i18n" => "api." . strtolower($this->name) . "Deleted"
         ], 204);
+    }
+
+    protected function handleRelations($resource, Request $request): void
+    {
+        foreach ($this->relations as $relation => $config) {
+            if (!$request->has($relation)) continue;
+
+            $method = $config['method'] ?? 'sync';
+            $data = $this->prepareRelationData($request->get($relation), $config);
+
+            $resource->$relation()->$method($data);
+        }
+    }
+
+
+    protected function prepareRelationData(array $data, array $config): array
+    {
+        $relationData = [];
+        $fields = $config['fields'] ?? [];
+
+        foreach ($data as $item) {
+            $id = $item['id'];
+            $relationData[$id] = [];
+
+            foreach ($fields as $field) {
+                $relationData[$id][$field] = $item[$field] ?? null;
+            }
+        }
+
+        return $relationData;
+    }
+
+    protected function getRelationFields(): array
+    {
+        return array_keys($this->relations);
+    }
+
+    protected function loadWithRelations($resource)
+    {
+        if ($this->with) {
+            return $resource->load($this->with);
+        }
+
+        return $resource->fresh();
     }
 }

@@ -7,10 +7,11 @@ use App\Http\Controllers\BaseApiController;
 
 class IngredientController extends BaseApiController
 {
-    protected $model = Ingredient::class;
-    protected $name = 'Ingredient';
+    protected string $model = Ingredient::class;
+    protected string $name = 'Ingredient';
+    protected array $with = ['supplier', 'unitMeasure'];
 
-    protected $storeRules = [
+    protected array $storeRules = [
         'name' => 'required|string|max:150',
         'description' => 'string',
         'unit_price' => 'required|numeric|min:0',
@@ -23,7 +24,7 @@ class IngredientController extends BaseApiController
         'status' => 'boolean'
     ];
 
-    protected $updateRules = [
+    protected array $updateRules = [
         'name' => 'required|string|max:150',
         'description' => 'string',
         'unit_price' => 'required|numeric|min:0',

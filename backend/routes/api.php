@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\IngredientController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProviderController;
 use App\Http\Controllers\Api\UnitMeasureController;
 use Illuminate\Http\Request;
@@ -71,4 +72,12 @@ Route::prefix('ingredients')->group(function(){
     Route::get('/{id}', [IngredientController::class, 'show']);
     Route::put('/{id}', [IngredientController::class, 'update']);
     Route::delete('/{id}', [IngredientController::class, 'destroy']);
+});
+
+Route::prefix('products')->group(function(){
+    Route::post('/', [ProductController::class, 'store']);
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{id}', [ProductController::class, 'show']);
+    Route::put('/{id}', [ProductController::class, 'update']);
+    Route::delete('/{id}', [ProductController::class, 'destroy']);
 });

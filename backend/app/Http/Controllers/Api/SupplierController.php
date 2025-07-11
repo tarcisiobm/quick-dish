@@ -7,10 +7,10 @@ use App\Http\Controllers\BaseApiController;
 
 class SupplierController extends BaseApiController
 {
-    protected $model = Supplier::class;
-    protected $name = 'Supplier';
+    protected string $model = Supplier::class;
+    protected string $name = 'Supplier';
 
-    protected $storeRules = [
+    protected array $storeRules = [
         'name' => 'required|string|max:150',
         'cnpj' => 'nullable|string|max:20',
         'phone' => 'nullable|string|max:20',
@@ -18,7 +18,7 @@ class SupplierController extends BaseApiController
         'status' => 'boolean'
     ];
 
-    protected $updateRules = [
+    protected array $updateRules = [
         'name' => 'required|string|max:150',
         'cnpj' => 'nullable|string|max:20',
         'phone' => 'nullable|string|max:20',

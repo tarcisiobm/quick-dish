@@ -6,17 +6,17 @@ use App\Models\Category;
 
 class CategoryController extends BaseApiController
 {
-    protected $model = Category::class;
-    protected $name = 'Category';
+    protected string $model = Category::class;
+    protected string $name = 'Category';
 
-    protected $storeRules = [
+    protected array $storeRules = [
         'name' => 'required|string|max:150',
         'description' => 'nullable|string|max:255',
         'image' => 'nullable|image|max:2048',
         'display_order' => 'nullable|integer|min:1'
     ];
 
-    protected $updateRules = [
+    protected array $updateRules = [
         'name' => 'nullable|string|max:150',
         'description' => 'nullable|string|max:255',
         'image' => 'nullable|image|max:2048',
