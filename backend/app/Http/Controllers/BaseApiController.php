@@ -38,13 +38,13 @@ abstract class BaseApiController extends Controller
 
             return response()->json([
                 "status" => "success",
-                "message" => "{$this->name} created successfully.",
-                "i18n" => "api." . strtolower($this->name) . "Created",
+                "message" => __('api.created', ['name' => $this->getTranslatedName()]),
+                "i18n" => "api.created",
                 "data" => $this->loadWithRelations($resource)
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => 'Validation error.',
+                'message' => __('api.validation_error'),
                 'errors' => $e->errors()
             ], $e->status);
         }
@@ -63,8 +63,8 @@ abstract class BaseApiController extends Controller
         if (!$resource) {
             return response()->json([
                 "status" => "error",
-                "message" => "{$this->name} not found.",
-                "i18n" => "api." . strtolower($this->name) . "NotFound"
+                "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
+                "i18n" => "api.not_found"
             ], 404);
         }
 
@@ -81,8 +81,8 @@ abstract class BaseApiController extends Controller
         if (!$resource) {
             return response()->json([
                 "status" => "error",
-                "message" => "{$this->name} not found.",
-                "i18n" => "api." . strtolower($this->name) . "NotFound"
+                "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
+                "i18n" => "api.not_found"
             ], 404);
         }
 
@@ -94,12 +94,12 @@ abstract class BaseApiController extends Controller
             return response()->json([
                 "status" => "success",
                 "data" => $this->loadWithRelations($resource),
-                "message" => "{$this->name} updated successfully.",
-                "i18n" => "api." . strtolower($this->name) . "Updated"
+                "message" => __('api.updated', ['name' => $this->getTranslatedName()]),
+                "i18n" => "api.updated"
             ]);
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => 'Validation error.',
+                'message' => __('api.validation_error'),
                 'errors' => $e->errors()
             ], $e->status);
         }
@@ -112,8 +112,8 @@ abstract class BaseApiController extends Controller
         if (!$resource) {
             return response()->json([
                 "status" => "error",
-                "message" => "{$this->name} not found.",
-                "i18n" => "api." . strtolower($this->name) . "NotFound"
+                "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
+                "i18n" => "api.not_found"
             ], 404);
         }
 
@@ -121,8 +121,8 @@ abstract class BaseApiController extends Controller
 
         return response()->json([
             "status" => "success",
-            "message" => "{$this->name} deleted successfully.",
-            "i18n" => "api." . strtolower($this->name) . "Deleted"
+            "message" => __('api.deleted', ['name' => $this->getTranslatedName()]),
+            "i18n" => "api.deleted"
         ], 204);
     }
 
@@ -184,5 +184,13 @@ abstract class BaseApiController extends Controller
         }
 
         return $resource->fresh();
+    }
+
+    protected function getTranslatedName(): string
+    {
+        $key = 'entities.' . strtolower($this->name);
+        $translated = __($key);
+
+        return $translated !== $key ? $translated : $this->name;
     }
 }
