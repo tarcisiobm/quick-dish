@@ -2,23 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 abstract class BaseApiController extends Controller
 {
     protected string $model;
     protected string $name;
-    protected array $storeRules = [];
-    protected array $updateRules = [];
     protected array $relations = [];
     protected array $with = [];
+    protected ?string $formRequest = null;
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(): JsonResponse
     {
         $query = $this->model::query();
@@ -33,32 +29,27 @@ abstract class BaseApiController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), $this->storeRules);
+        try {
+            $data = $this->validateRequest($request);
+            $resource = $this->model::create($data);
+            $this->saveRelations($resource, $request);
 
-        if ($validator->fails()) {
-            return response()->json(["errors" => $validator->errors()], 422);
+            return response()->json([
+                "status" => "success",
+                "message" => "{$this->name} created successfully.",
+                "i18n" => "api." . strtolower($this->name) . "Created",
+                "data" => $this->loadWithRelations($resource)
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error.',
+                'errors' => $e->errors()
+            ], $e->status);
         }
-
-        $resource = $this->model::create($request->except($this->getRelationFields()));
-
-        $this->handleRelations($resource, $request);
-
-        return response()->json([
-            "status" => "success",
-            "message" => "{$this->name} created successfully.",
-            "i18n" => "api." . strtolower($this->name) . "Created",
-            "data" => $this->loadWithRelations($resource)
-        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id): JsonResponse
     {
         $query = $this->model::query();
@@ -83,9 +74,6 @@ abstract class BaseApiController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id): JsonResponse
     {
         $resource = $this->model::find($id);
@@ -98,27 +86,25 @@ abstract class BaseApiController extends Controller
             ], 404);
         }
 
-        $validator = Validator::make($request->all(), $this->updateRules);
+        try {
+            $data = $this->validateRequest($request);
+            $resource->update($data);
+            $this->saveRelations($resource, $request);
 
-        if ($validator->fails()) {
-            return response()->json(["errors" => $validator->errors()], 422);
+            return response()->json([
+                "status" => "success",
+                "data" => $this->loadWithRelations($resource),
+                "message" => "{$this->name} updated successfully.",
+                "i18n" => "api." . strtolower($this->name) . "Updated"
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error.',
+                'errors' => $e->errors()
+            ], $e->status);
         }
-
-        $resource->update($request->except($this->getRelationFields()));
-
-        $this->handleRelations($resource, $request);
-
-        return response()->json([
-            "status" => "success",
-            "data" => $this->loadWithRelations($resource),
-            "message" => "{$this->name} updated successfully.",
-            "i18n" => "api." . strtolower($this->name) . "Updated"
-        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id): JsonResponse
     {
         $resource = $this->model::find($id);
@@ -140,33 +126,50 @@ abstract class BaseApiController extends Controller
         ], 204);
     }
 
-    protected function handleRelations($resource, Request $request): void
+    protected function validateRequest(Request $request): array
     {
-        foreach ($this->relations as $relation => $config) {
-            if (!$request->has($relation)) continue;
+        if ($this->formRequest) {
+            /** @var FormRequest $formRequest */
+            $formRequest = app($this->formRequest);
+            return $formRequest->validated();
+        }
 
-            $method = $config['method'] ?? 'sync';
-            $data = $this->prepareRelationData($request->get($relation), $config);
+        return $request->except($this->getRelationFields());
+    }
 
-            $resource->$relation()->$method($data);
+    protected function saveRelations($model, Request $request): void
+    {
+        foreach ($this->relations as $relationName => $relationSetup) {
+            if (!$request->has($relationName)) {
+                continue;
+            }
+
+            $saveMethod = $relationSetup['method'] ?? 'sync';
+            $requestItems = $request->input($relationName);
+
+            $pivotData = $this->buildRelationData($requestItems, $relationSetup);
+
+            $model->$relationName()->$saveMethod($pivotData);
         }
     }
 
-    protected function prepareRelationData(array $data, array $config): array
+    protected function buildRelationData(array $items, array $setup): array
     {
-        $relationData = [];
-        $fields = $config['fields'] ?? [];
+        $fields = $setup['fields'] ?? [];
+        $result = [];
 
-        foreach ($data as $item) {
+        foreach ($items as $item) {
             $id = $item['id'];
-            $relationData[$id] = [];
+            $pivotValues = [];
 
             foreach ($fields as $field) {
-                $relationData[$id][$field] = $item[$field] ?? null;
+                $pivotValues[$field] = $item[$field] ?? null;
             }
+
+            $result[$id] = $pivotValues;
         }
 
-        return $relationData;
+        return $result;
     }
 
     protected function getRelationFields(): array
