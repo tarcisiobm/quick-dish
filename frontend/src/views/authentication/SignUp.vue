@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
 import { ref } from 'vue';
 import { useSnackbarStore } from '@/stores/snackbar';
-const snackbar = useSnackbarStore();
 import createRules from '@/utils/rules';
 import { useAuthStore } from '@/stores/auth';
+
+const { t } = useI18n();
 const rules = createRules(t);
+const snackbar = useSnackbarStore();
 const auth = useAuthStore();
 
 const firstName = ref<string>('');

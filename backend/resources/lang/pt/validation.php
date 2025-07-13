@@ -15,6 +15,14 @@ return [
     'integer' => 'O campo :attribute deve ser um número inteiro.',
     'image' => 'O campo :attribute deve ser uma imagem.',
     'boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
+    'confirmed' => 'A confirmação do campo :attribute não confere.',
+    'exists' => 'O :attribute selecionado é inválido.',
+
+    'custom' => [
+        'email' => [
+            'unique' => 'Este e-mail já está em uso.',
+        ],
+    ],
 
     'attributes' => [
         'name' => 'nome',
@@ -24,5 +32,10 @@ return [
         'display_order' => 'ordem de exibição',
         'status' => 'status',
         'password' => 'senha',
+        'phone' => 'telefone',
+        'current_password' => 'senha atual',
+        'new_password' => 'nova senha',
+        'new_email' => 'novo e-mail',
+        'token' => 'token',
     ],
 ];

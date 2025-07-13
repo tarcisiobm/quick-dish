@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSnackbarStore } from './snackbar';
-import createExceptions from '@/utils/exception';
+import { useErrorStore } from './error';
 import api from '@/plugins/axios';
 import router from '@/router';
 import createWindow from '@/utils/window';
@@ -22,6 +22,7 @@ export interface AuthData {
 export interface LoginData {
   email: string;
   password: string;
+  remember?: boolean;
 }
 
 export interface RegisterData {
@@ -32,15 +33,10 @@ export interface RegisterData {
   password_confirmation: string;
 }
 
-const AUTH_KEY = 'wasLoggedIn';
-const getStoredAuth = (): boolean => localStorage.getItem(AUTH_KEY) === 'true';
-const setStoredAuth = (value: boolean): void => localStorage.setItem(AUTH_KEY, String(value));
-const clearStoredAuth = (): void => localStorage.removeItem(AUTH_KEY);
-
 export const useAuthStore = defineStore('auth', () => {
   const { t } = useI18n();
   const snackbar = useSnackbarStore();
-  const exception = createExceptions(snackbar, t);
+  const errorStore = useErrorStore();
 
   const user = ref<AuthData | null>(null);
   const recoverEmail = ref('');
@@ -48,79 +44,73 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => Boolean(user.value));
 
-  const resetState = () => {
+  const resetState = (): void => {
     user.value = null;
     recoverEmail.value = '';
-    clearStoredAuth();
   };
 
-  const setUser = (userData: AuthData) => {
+  const setUser = (userData: AuthData): void => {
     user.value = userData;
-    setStoredAuth(true);
   };
 
-  const handleError = (err: any, showSessionExpired = false) => {
-    if (showSessionExpired && getStoredAuth() && err.response?.status === 401) {
-      snackbar.show(t('snackbar.sessionExpired'));
+  const getUserSession = async (): Promise<void> => {
+    try {
+      const response = await api.get('/auth/user');
+      setUser(response.data);
+    } catch (error) {
+      resetState();
     }
-    exception.show(err);
   };
 
-  const getUserSession = async () => {
-    const response = await api.get('/auth/user');
-    setUser(response.data);
-  };
-
-  const initializeAuth = async () => {
+  const initializeAuth = async (): Promise<void> => {
     try {
       await getUserSession();
     } catch (error) {
-      handleError(error, true);
       resetState();
     }
   };
 
-  const register = async (data: RegisterData) => {
+  const register = async (data: RegisterData): Promise<void> => {
     try {
-      await api.post('/auth/sign-up', data);
-      snackbar.success(t('snackbar.accountCreatedSuccessfully'));
+      const response = await api.post('/auth/sign-up', data);
+      snackbar.success(response.data.message);
       router.push('/verify-email');
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      errorStore.handle(error);
     }
   };
 
-  const login = async (credentials: LoginData) => {
+  const login = async (credentials: LoginData): Promise<void> => {
     try {
       const response = await api.post('/auth/login', credentials);
       setUser(response.data.user);
-      snackbar.success(t('snackbar.loginSuccessful'));
+      snackbar.success(response.data.message);
       router.push('/');
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      errorStore.handle(error);
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
-      await api.post('/auth/logout');
-    } catch (err) {
-      handleError(err);
+      const response = await api.post('/auth/logout');
+      snackbar.success(response.data.message);
+    } catch (error) {
+      errorStore.handle(error);
     } finally {
       resetState();
-      snackbar.success(t('snackbar.logoutSuccessful'));
       router.push('/');
     }
   };
 
-  const closeAuthWindow = () => {
+  const closeAuthWindow = (): void => {
     if (!authWindow.value) return;
     authWindow.value.close();
     authWindow.value = null;
     window.removeEventListener('message', handleAuthMessage);
   };
 
-  const handleAuthMessage = (event: MessageEvent) => {
+  const handleAuthMessage = (event: MessageEvent): void => {
     if (event.origin !== process.env.VUE_APP_BACKEND_URL) return;
 
     const { status, user: userData, error } = event.data;
@@ -135,50 +125,57 @@ export const useAuthStore = defineStore('auth', () => {
     snackbar.error(error || t('snackbar.authenticationError'));
   };
 
-  const authenticateProvider = async (provider: string) => {
+  const authenticateProvider = async (provider: string): Promise<void> => {
     try {
       const response = await api.get(`/auth/${provider}/redirect`);
       authWindow.value = createWindow().open(response.data.redirect_url, 'Authentication');
       window.addEventListener('message', handleAuthMessage);
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      errorStore.handle(error);
     }
   };
 
-  const recoverPassword = async (email: string) => {
+  const recoverPassword = async (email: string): Promise<void> => {
     if (!email?.trim()) return;
+
     try {
-      await api.post('/auth/recover-password', { email });
+      const response = await api.post('/auth/recover-password', { email });
       recoverEmail.value = email;
+      snackbar.success(response.data.message);
       router.push('/recover-password/verification');
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      errorStore.handle(error);
     }
   };
 
-  const validateToken = async (token: string) => {
+  const validateToken = async (token: string): Promise<void> => {
     if (!token?.trim()) return;
+
     try {
-      await api.post('/auth/validate-token', { token, email: recoverEmail.value });
-      snackbar.success(t('snackbar.tokenValidated'));
+      const response = await api.post('/auth/validate-token', {
+        token,
+        email: recoverEmail.value
+      });
+      snackbar.success(response.data.message);
       router.push('/recover-password/new');
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      errorStore.handle(error);
     }
   };
 
-  const setNewPassword = async (password: string, passwordConfirmation: string) => {
+  const setNewPassword = async (password: string, passwordConfirmation: string): Promise<void> => {
     if (!password?.trim() || !passwordConfirmation?.trim()) return;
+
     try {
-      await api.post('/auth/reset-password', {
+      const response = await api.post('/auth/reset-password', {
         email: recoverEmail.value,
         password,
         password_confirmation: passwordConfirmation
       });
-      snackbar.success(t('snackbar.passwordChanged'));
+      snackbar.success(response.data.message);
       router.push('/login');
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      errorStore.handle(error);
     }
   };
 
