@@ -2,6 +2,9 @@
 import { ref, reactive, onMounted } from 'vue';
 import { PhCalendar, PhClock, PhUsers, PhCheck } from '@phosphor-icons/vue';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 // Estado do formulário
 const reservationForm = reactive({
@@ -25,34 +28,34 @@ const timeSlots = [
 const guestOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 // Buscar dados do usuário autenticado (desativado temporariamente)
-const fetchUserData = async () => {
-  try {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      const response = await axios.get('http://localhost:8000/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      user.value = response.data;
-    } else {
-      // Para testes sem autenticação, vamos simular um usuário
-      user.value = {
-        name: 'Usuário de Teste',
-        email: 'teste@quickdish.com',
-        phone: '(11) 99999-9999'
-      };
-    }
-  } catch (error) {
-    console.error('Erro ao buscar dados do usuário:', error);
-    // Para testes sem autenticação, vamos simular um usuário
-    user.value = {
-      name: 'Usuário de Teste',
-      email: 'teste@quickdish.com',
-      phone: '(11) 99999-9999'
-    };
-  }
-};
+// const fetchUserData = async () => {
+//   try {
+//     const token = localStorage.getItem('auth_token');
+//     if (token) {
+//       const response = await axios.get('http://localhost:8000/api/auth/me', {
+//         headers: {
+//           'Authorization': `Bearer ${token}`
+//         }
+//       });
+//       user.value = response.data;
+//     } else {
+//       // Para testes sem autenticação, vamos simular um usuário
+//       user.value = {
+//         name: 'Usuário de Teste',
+//         email: 'teste@quickdish.com',
+//         phone: '(11) 99999-9999'
+//       };
+//     }
+//   } catch (error) {
+//     console.error('Erro ao buscar dados do usuário:', error);
+//     // Para testes sem autenticação, vamos simular um usuário
+//     user.value = {
+//       name: 'Usuário de Teste',
+//       email: 'teste@quickdish.com',
+//       phone: '(11) 99999-9999'
+//     };
+//   }
+// };
 
 // Função para submeter a reserva (sem autenticação)
 const submitReservation = async () => {
@@ -89,7 +92,7 @@ const submitReservation = async () => {
       showSuccess.value = false;
     }, 5000);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao criar reserva:', error.response ? error.response.data : error.message);
     // Aqui você pode adicionar uma notificação de erro mais detalhada para o usuário
     alert('Erro ao criar reserva: ' + (error.response && error.response.data.message ? error.response.data.message : 'Verifique o console para mais detalhes.'));
@@ -103,9 +106,9 @@ const isFormValid = () => {
   return reservationForm.date && reservationForm.time && reservationForm.guests > 0;
 };
 
-onMounted(() => {
-  fetchUserData();
-});
+// onMounted(() => {
+//   fetchUserData();
+// });
 </script>
 
 <template>
@@ -143,12 +146,12 @@ onMounted(() => {
         <v-form @submit.prevent="submitReservation">
           <v-row>
             <!-- Informações do Usuário (somente leitura) -->
-            <v-col cols="12" v-if="user">
+            <v-col cols="12" v-if="authStore.user">
               <h3 class="section-title color-subtitle mb-4">Dados da Reserva</h3>
               <div class="user-info mb-4">
-                <p><strong>Nome:</strong> {{ user.name }}</p>
-                <p><strong>E-mail:</strong> {{ user.email }}</p>
-                <p v-if="user.phone"><strong>Telefone:</strong> {{ user.phone }}</p>
+                <p><strong>Nome:</strong> {{ authStore.user?.name }}</p>
+                <p><strong>E-mail:</strong> {{ authStore.user?.email }}</p>
+                <p v-if="authStore.user?.phone"><strong>Telefone:</strong> {{ authStore.user?.phone }}</p>
               </div>
             </v-col>
 

@@ -47,10 +47,16 @@ const router = createRouter({
           name: 'reservations',
           component: () => import('@/views/Reservation.vue')
         },
-         {
-          path: 'adminreservations',
-          name: 'adminreservations',
-          component: () => import('@/views/AdminReservations.vue')
+        {
+          path: 'admin',
+          name: 'admin',
+          children: [
+            {
+              path: 'reservations',
+              name: 'admin-reservations',
+              component: () => import('@/views/AdminReservations.vue')
+            }
+          ]
         }
       ]
     },
