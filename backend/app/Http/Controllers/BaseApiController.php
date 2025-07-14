@@ -39,7 +39,6 @@ abstract class BaseApiController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => __('api.created', ['name' => $this->getTranslatedName()]),
-                "i18n" => "api.created",
                 "data" => $this->loadWithRelations($resource)
             ], 201);
         } catch (ValidationException $e) {
@@ -64,7 +63,6 @@ abstract class BaseApiController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
-                "i18n" => "api.not_found"
             ], 404);
         }
 
@@ -82,7 +80,6 @@ abstract class BaseApiController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
-                "i18n" => "api.not_found"
             ], 404);
         }
 
@@ -95,7 +92,6 @@ abstract class BaseApiController extends Controller
                 "status" => "success",
                 "data" => $this->loadWithRelations($resource),
                 "message" => __('api.updated', ['name' => $this->getTranslatedName()]),
-                "i18n" => "api.updated"
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -113,7 +109,6 @@ abstract class BaseApiController extends Controller
             return response()->json([
                 "status" => "error",
                 "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
-                "i18n" => "api.not_found"
             ], 404);
         }
 
@@ -122,7 +117,6 @@ abstract class BaseApiController extends Controller
         return response()->json([
             "status" => "success",
             "message" => __('api.deleted', ['name' => $this->getTranslatedName()]),
-            "i18n" => "api.deleted"
         ], 204);
     }
 
