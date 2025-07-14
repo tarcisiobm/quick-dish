@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\DeliveryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\IngredientController;
@@ -46,56 +47,6 @@ Route::prefix('/auth')->group(function () {
         ->where('provider', 'google|facebook|apple');
 });
 
-
-Route::prefix('categories')->group(function(){
-    Route::post('/', [CategoryController::class, 'store']);
-    Route::get('/', [CategoryController::class, 'index']);
-    Route::get('/{id}', [CategoryController::class, 'show']);
-    Route::put('/{id}', [CategoryController::class, 'update']);
-    Route::delete('/{id}', [CategoryController::class, 'destroy']);
-});
-
-Route::prefix('suppliers')->group(function(){
-    Route::post('/', [SupplierController::class, 'store']);
-    Route::get('/', [SupplierController::class, 'index']);
-    Route::get('/{id}', [SupplierController::class, 'show']);
-    Route::put('/{id}', [SupplierController::class, 'update']);
-    Route::delete('/{id}', [SupplierController::class, 'destroy']);
-});
-
-Route::prefix('unitMeasures')->group(function(){
-    Route::post('/', [UnitMeasureController::class, 'store']);
-    Route::get('/', [UnitMeasureController::class, 'index']);
-    Route::get('/{id}', [UnitMeasureController::class, 'show']);
-    Route::put('/{id}', [UnitMeasureController::class, 'update']);
-    Route::delete('/{id}', [UnitMeasureController::class, 'destroy']);
-});
-
-Route::prefix('ingredients')->group(function(){
-    Route::post('/', [IngredientController::class, 'store']);
-    Route::get('/', [IngredientController::class, 'index']);
-    Route::get('/{id}', [IngredientController::class, 'show']);
-    Route::put('/{id}', [IngredientController::class, 'update']);
-    Route::delete('/{id}', [IngredientController::class, 'destroy']);
-});
-
-Route::prefix('products')->group(function(){
-    Route::post('/', [ProductController::class, 'store']);
-    Route::get('/', [ProductController::class, 'index']);
-    Route::get('/{id}', [ProductController::class, 'show']);
-    Route::put('/{id}', [ProductController::class, 'update']);
-    Route::delete('/{id}', [ProductController::class, 'destroy']);
-});
-
-Route::prefix("reservations")->group(function () {
-    Route::post("/", [ReservationController::class, "store"]);
-    Route::get("/", [ReservationController::class, "index"]);
-    Route::get("/my-reservations", [ReservationController::class, "myReservations"]);
-    Route::get("/{id}", [ReservationController::class, "show"]);
-    Route::put("/{id}", [ReservationController::class, "update"]);
-    Route::delete("/{id}", [ReservationController::class, "destroy"]);
-});
-
 Route::apiResources([
     'categories' => CategoryController::class,
     'suppliers' => SupplierController::class,
@@ -104,5 +55,6 @@ Route::apiResources([
     'products' => ProductController::class,
     'tables' => TableController::class,
     'paymentTypes' => PaymentTypeController::class,
-    'addresses' => AddressController::class
+    'addresses' => AddressController::class,
+    'deliveries' => DeliveryController::class
 ]);

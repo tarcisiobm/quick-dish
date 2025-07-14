@@ -5,13 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Table extends Model
+class Delivery extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'number',
-        'capacity',
-        'status',
+        'address_id',
+        'price'
     ];
+
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
 }
