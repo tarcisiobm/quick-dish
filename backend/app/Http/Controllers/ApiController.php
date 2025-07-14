@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
-abstract class BaseApiController extends Controller
+abstract class ApiController extends Controller
 {
     protected string $model;
     protected string $name;

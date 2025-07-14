@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
-use App\Http\Controllers\BaseApiController;
+use App\Http\Controllers\ApiController;
 use App\Http\Requests\ProductRequest;
 
-class ProductController extends BaseApiController
+class ProductController extends ApiController
 {
     protected string $model = Product::class;
     protected string $name = 'Product';
