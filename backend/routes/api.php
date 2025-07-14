@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SupplierController;
@@ -51,5 +52,6 @@ Route::apiResources([
     'ingredients' => IngredientController::class,
     'products' => ProductController::class,
     'tables' => TableController::class,
-    'paymentTypes' => PaymentTypeController::class
+    'paymentTypes' => PaymentTypeController::class,
+    'addresses' => AddressController::class
 ]);

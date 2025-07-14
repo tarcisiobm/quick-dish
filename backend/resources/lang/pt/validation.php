@@ -50,6 +50,13 @@ return [
         'ingredients.*.id' => 'ingrediente',
         'ingredients.*.quantity' => 'quantidade',
         'number' => 'número',
-        'capacity' => 'capacidade'
+        'capacity' => 'capacidade',
+        'zipcode' => 'CEP',
+        'street' => 'rua',
+        'city' => 'cidade',
+        'state' => 'estado',
+        'refference' => 'referência',
+        'complement' => 'complemento',
+        'is_default' => 'valor padrão',
     ],
 ];
