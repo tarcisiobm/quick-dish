@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DeliveryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
+use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SocialAuthController;
@@ -55,5 +56,6 @@ Route::apiResources([
     'tables' => TableController::class,
     'paymentTypes' => PaymentTypeController::class,
     'addresses' => AddressController::class,
-    'deliveries' => DeliveryController::class
+    'deliveries' => DeliveryController::class,
+    'employees' => EmployeeController::class
 ]);

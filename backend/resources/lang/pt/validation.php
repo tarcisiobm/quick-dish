@@ -58,6 +58,12 @@ return [
         'refference' => 'referência',
         'complement' => 'complemento',
         'is_default' => 'valor padrão',
-        'address_id' => 'endereço'
+        'address_id' => 'endereço',
+        'user_id' => 'usuário',
+        'job_title' => 'cargo',
+        'salary' => 'salário',
+        'hire_date' => 'data de contratação',
+        'termination_date' => 'data de desligamento',
+        'work_schedule' => 'jornada de trabalho',
     ],
 ];

@@ -58,6 +58,12 @@ return [
         'refference' => 'refference',
         'complement' => 'complement',
         'is_default' => 'default value',
-        'address_id' => 'address'
+        'address_id' => 'address',
+        'user_id' => 'employee user',
+        'job_title' => 'job title',
+        'salary' => 'salary',
+        'hire_date' => 'hire date',
+        'termination_date' => 'termination date',
+        'work_schedule' => 'work schedule',
     ],
 ];
