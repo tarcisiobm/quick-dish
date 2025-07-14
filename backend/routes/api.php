@@ -46,7 +46,7 @@ Route::prefix('/auth')->group(function () {
         ->where('provider', 'google|facebook|apple');
 });
 
-<<<<<<< HEAD
+
 Route::prefix('categories')->group(function(){
     Route::post('/', [CategoryController::class, 'store']);
     Route::get('/', [CategoryController::class, 'index']);
@@ -87,14 +87,15 @@ Route::prefix('products')->group(function(){
     Route::delete('/{id}', [ProductController::class, 'destroy']);
 });
 
-Route::prefix('reservations')->group(function () {
-    Route::post('/', [ReservationController::class, 'store']);
-    Route::get('/', [ReservationController::class, 'index']);
-    Route::get('/{id}', [ReservationController::class, 'show']);
-    Route::put('/{id}', [ReservationController::class, 'update']);
-    Route::delete('/{id}', [ReservationController::class, 'destroy']);
+Route::prefix("reservations")->group(function () {
+    Route::post("/", [ReservationController::class, "store"]);
+    Route::get("/", [ReservationController::class, "index"]);
+    Route::get("/my-reservations", [ReservationController::class, "myReservations"]);
+    Route::get("/{id}", [ReservationController::class, "show"]);
+    Route::put("/{id}", [ReservationController::class, "update"]);
+    Route::delete("/{id}", [ReservationController::class, "destroy"]);
 });
-=======
+
 Route::apiResources([
     'categories' => CategoryController::class,
     'suppliers' => SupplierController::class,
@@ -105,4 +106,3 @@ Route::apiResources([
     'paymentTypes' => PaymentTypeController::class,
     'addresses' => AddressController::class
 ]);
->>>>>>> 71a0c8232b9d8407a9e1c0f3ae088b5661282041

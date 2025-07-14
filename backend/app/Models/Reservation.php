@@ -3,33 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\SoftDeletes; // Adicione se for usar soft deletes na tabela users
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class User extends Authenticatable
+class Reservation extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes; // Adicione SoftDeletes aqui
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'phone', // Adicione se não estiver no fillable
-        'profile_id', // Adicione se não estiver no fillable
+        'user_id',
+        'table_id',
+        'reservation_date',
+        'start_time',
+        'end_time',
+        'guests_count',
+        'notes',
+        'status',
+        'guest_name',
+        'guest_email',
+        'guest_phone',
     ];
 
-    // ... o restante do modelo User
+    protected $casts = [
+        'reservation_date' => 'date',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+        'status' => 'boolean',
+    ];
 
-    // Relacionamento com reservas (um usuário pode ter muitas reservas)
-    public function reservations()
+    public function user()
     {
-        return $this->hasMany(Reservation::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function profile()
+    public function table()
     {
-        return $this->belongsTo(Profile::class); // Se tiver um modelo Profile
+        return $this->belongsTo(Table::class);
     }
 }
