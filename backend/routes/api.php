@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\UnitMeasureController;
+use App\Http\Controllers\Api\PaymentTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,5 +50,6 @@ Route::apiResources([
     'unitMeasures' => UnitMeasureController::class,
     'ingredients' => IngredientController::class,
     'products' => ProductController::class,
-    'tables' => TableController::class
+    'tables' => TableController::class,
+    'paymentTypes' => PaymentTypeController::class
 ]);

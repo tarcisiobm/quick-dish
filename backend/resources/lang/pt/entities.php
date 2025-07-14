@@ -6,5 +6,6 @@ return [
     'unitmeasure' => 'Unidade de medida',
     'ingredient' => 'Ingrediente',
     'product' => 'Produto',
-    'table' => 'Mesa'
+    'table' => 'Mesa',
+    'paymenttype' => 'Tipo de pagamento'
 ];

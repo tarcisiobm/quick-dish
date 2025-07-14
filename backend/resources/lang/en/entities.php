@@ -6,5 +6,6 @@ return [
     'unitmeasure' => 'Unit measure',
     'ingredient' => 'Ingredient',
     'product' => 'Product',
-    'table' => 'Table'
+    'table' => 'Table',
+    'paymenttype' => 'Payment type'
 ];
