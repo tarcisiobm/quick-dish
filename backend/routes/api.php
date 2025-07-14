@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProviderController;
 use App\Http\Controllers\Api\UnitMeasureController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ReservationController;
 
 Route::prefix('/auth')->group(function () {
     Route::post('/sign-up', [AuthController::class, 'register']);
@@ -80,4 +81,12 @@ Route::prefix('products')->group(function(){
     Route::get('/{id}', [ProductController::class, 'show']);
     Route::put('/{id}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'destroy']);
+});
+
+Route::prefix('reservations')->group(function () {
+    Route::post('/', [ReservationController::class, 'store']);
+    Route::get('/', [ReservationController::class, 'index']);
+    Route::get('/{id}', [ReservationController::class, 'show']);
+    Route::put('/{id}', [ReservationController::class, 'update']);
+    Route::delete('/{id}', [ReservationController::class, 'destroy']);
 });
