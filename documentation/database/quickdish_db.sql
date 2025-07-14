@@ -224,19 +224,6 @@ CREATE TABLE product_ingredients (
     CONSTRAINT fk_product_ingredients_ingredient FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)
 );
 
--- 4.6 product_additionals (adicionais disponíveis para cada produto)
-CREATE TABLE product_additionals (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL,
-    ingredient_id INT NOT NULL,
-    status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at DATETIME NULL,
-    CONSTRAINT fk_product_additionals_product FOREIGN KEY (product_id) REFERENCES products(id),
-    CONSTRAINT fk_product_additionals_ingredient FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)
-);
-
 -- 4.7 ingredients_movements (movimentações do estoque)
 CREATE TABLE ingredients_movements (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

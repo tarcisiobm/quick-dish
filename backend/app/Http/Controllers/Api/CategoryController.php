@@ -1,26 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Http\Controllers\BaseApiController;
+
+use App\Http\Controllers\ApiController;
+use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 
-class CategoryController extends BaseApiController
+class CategoryController extends ApiController
 {
     protected string $model = Category::class;
     protected string $name = 'Category';
-
-    protected array $storeRules = [
-        'name' => 'required|string|max:150',
-        'description' => 'sometimes|nullable|string|max:255',
-        'image' => 'sometimes|nullable|image|max:2048',
-        'display_order' => 'sometimes|nullable|integer|min:1'
-    ];
-
-    protected array $updateRules = [
-        'name' => 'sometimes|string|max:150',
-        'description' => 'sometimes|nullable|string|max:255',
-        'image' => 'sometimes|nullable|image|max:2048',
-        'display_order' => 'sometimes|nullable|integer|min:1',
-        'status' => 'sometimes|boolean'
-    ];
+    protected ?string $formRequest = CategoryRequest::class;
 }

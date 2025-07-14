@@ -2,11 +2,12 @@
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import { useSnackbarStore } from '@/stores/snackbar';
-const { t } = useI18n();
 import createRules from '@/utils/rules';
+import { useAuthStore } from '@/stores/auth';
+
+const { t } = useI18n();
 const rules = createRules(t);
 const snackbar = useSnackbarStore();
-import { useAuthStore } from '@/stores/auth';
 const auth = useAuthStore();
 
 const email = ref<string>('');
@@ -20,13 +21,12 @@ const login = async (): Promise<void> => {
     snackbar.error(t('snackbar.pleaseFillOutAllRequiredFields'));
     return;
   }
-  await auth.login(
-    {
-      email: email.value,
-      password: password.value
-    },
-    rememberMe.value
-  );
+
+  await auth.login({
+    email: email.value,
+    password: password.value,
+    remember: rememberMe.value
+  });
 };
 
 const loginProvider = async (provider: string): Promise<void> => {

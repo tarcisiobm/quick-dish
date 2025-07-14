@@ -1,13 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\ProviderController;
+use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\UnitMeasureController;
+use App\Http\Controllers\Api\PaymentTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReservationController;
@@ -39,10 +42,11 @@ Route::prefix('/auth')->group(function () {
         Route::post('/change-password', [AuthController::class, 'changePassword']);
     });
 
-    Route::get('/{provider}/redirect', [ProviderController::class, 'redirectToProvider'])
+    Route::get('/{provider}/redirect', [SocialAuthController::class, 'getAuthUrl'])
         ->where('provider', 'google|facebook|apple');
 });
 
+<<<<<<< HEAD
 Route::prefix('categories')->group(function(){
     Route::post('/', [CategoryController::class, 'store']);
     Route::get('/', [CategoryController::class, 'index']);
@@ -90,3 +94,15 @@ Route::prefix('reservations')->group(function () {
     Route::put('/{id}', [ReservationController::class, 'update']);
     Route::delete('/{id}', [ReservationController::class, 'destroy']);
 });
+=======
+Route::apiResources([
+    'categories' => CategoryController::class,
+    'suppliers' => SupplierController::class,
+    'unitMeasures' => UnitMeasureController::class,
+    'ingredients' => IngredientController::class,
+    'products' => ProductController::class,
+    'tables' => TableController::class,
+    'paymentTypes' => PaymentTypeController::class,
+    'addresses' => AddressController::class
+]);
+>>>>>>> 71a0c8232b9d8407a9e1c0f3ae088b5661282041

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+<<<<<<< HEAD
 use App\Http\Controllers\Controller;
 use App\Models\Table; // Importa o modelo Table
 use Illuminate\Http\Request;
@@ -112,3 +113,15 @@ class TableController extends Controller
         }
     }
 }
+=======
+use App\Http\Controllers\ApiController;
+use App\Models\Table;
+use App\Http\Requests\TableRequest;
+
+class TableController extends ApiController
+{
+    protected string $model = Table::class;
+    protected string $name = 'Table';
+    protected ?string $formRequest = TableRequest::class;
+}
+>>>>>>> 71a0c8232b9d8407a9e1c0f3ae088b5661282041
