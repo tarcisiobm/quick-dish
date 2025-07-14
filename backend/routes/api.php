@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\ProviderController;
+use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\UnitMeasureController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,7 +38,7 @@ Route::prefix('/auth')->group(function () {
         Route::post('/change-password', [AuthController::class, 'changePassword']);
     });
 
-    Route::get('/{provider}/redirect', [ProviderController::class, 'redirectToProvider'])
+    Route::get('/{provider}/redirect', [SocialAuthController::class, 'getAuthUrl'])
         ->where('provider', 'google|facebook|apple');
 });
 

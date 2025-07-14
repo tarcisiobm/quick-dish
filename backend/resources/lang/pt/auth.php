@@ -16,4 +16,6 @@ return [
     'valid_token' => 'Token válido.',
     'password_reset_sent' => 'Link de redefinição de senha enviado com sucesso.',
     'password_reset_success' => 'Senha redefinida com sucesso.',
+    'error_sending_password_reset' => 'Erro ao enviar redefinição de senha.',
+    'error_reseting_password' => 'Erro ao redefinir a senha.'
 ];

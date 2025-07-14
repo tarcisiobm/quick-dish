@@ -16,4 +16,6 @@ return [
     'valid_token' => 'Valid token.',
     'password_reset_sent' => 'Password reset link sent successfully.',
     'password_reset_success' => 'Password reset successfully.',
+    'error_sending_password_reset' => 'Error sending reset password.',
+    'error_reseting_password' => 'Error reseting password.'
 ];

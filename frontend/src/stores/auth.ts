@@ -19,6 +19,11 @@ export interface AuthData {
   created_at: string;
 }
 
+export interface RecoverData {
+  email: string;
+  token: string;
+}
+
 export interface LoginData {
   email: string;
   password: string;
@@ -39,14 +44,14 @@ export const useAuthStore = defineStore('auth', () => {
   const errorStore = useErrorStore();
 
   const user = ref<AuthData | null>(null);
-  const recoverEmail = ref('');
+  const recoverData = ref<RecoverData | null>(null);
   const authWindow = ref<Window | null>(null);
 
   const isAuthenticated = computed(() => Boolean(user.value));
 
   const resetState = (): void => {
     user.value = null;
-    recoverEmail.value = '';
+    recoverData.value = null;
   };
 
   const setUser = (userData: AuthData): void => {
@@ -140,7 +145,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response = await api.post('/auth/recover-password', { email });
-      recoverEmail.value = email;
+      recoverData.value = { email: email, token: '' };
       snackbar.success(response.data.message);
       router.push('/recover-password/verification');
     } catch (error) {
@@ -154,9 +159,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await api.post('/auth/validate-token', {
         token,
-        email: recoverEmail.value
+        email: recoverData.value?.email
       });
       snackbar.success(response.data.message);
+
+      if (recoverData.value) recoverData.value.token = token;
+
       router.push('/recover-password/new');
     } catch (error) {
       errorStore.handle(error);
@@ -167,8 +175,10 @@ export const useAuthStore = defineStore('auth', () => {
     if (!password?.trim() || !passwordConfirmation?.trim()) return;
 
     try {
+      console.log('here')
       const response = await api.post('/auth/reset-password', {
-        email: recoverEmail.value,
+        email: recoverData.value?.email,
+        token: recoverData.value?.token,
         password,
         password_confirmation: passwordConfirmation
       });
