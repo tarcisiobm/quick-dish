@@ -17,6 +17,12 @@ return [
     'boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
     'confirmed' => 'A confirmação do campo :attribute não confere.',
     'exists' => 'O :attribute selecionado é inválido.',
+    'numeric' => 'O campo :attribute deve ser um número.',
+    'array' => 'O campo :attribute deve ser um array.',
+    'required_with' => 'O campo :attribute é obrigatório quando :values está presente.',
+    'lt' => [
+        'numeric' => 'O campo :attribute deve ser menor que :value.',
+    ],
 
     'custom' => [
         'email' => [
@@ -37,5 +43,11 @@ return [
         'new_password' => 'nova senha',
         'new_email' => 'novo e-mail',
         'token' => 'token',
+        'category_id' => 'categoria',
+        'price' => 'preço',
+        'promotional_price' => 'preço promocional',
+        'ingredients' => 'ingredientes',
+        'ingredients.*.id' => 'ingrediente',
+        'ingredients.*.quantity' => 'quantidade',
     ],
 ];

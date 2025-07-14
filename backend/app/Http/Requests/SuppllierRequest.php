@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CategoryRequest extends FormRequest
+class SuppllierRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,21 +24,21 @@ class CategoryRequest extends FormRequest
         return match ($this->method()) {
             'PUT' => [
                 'name' => 'sometimes|string|max:150',
-                'description' => 'sometimes|nullable|string|max:255',
-                'image' => 'sometimes|nullable|image|max:2048',
-                'display_order' => 'sometimes|nullable|integer|min:1',
+                'cnpj' => 'sometimes|nullable|string|max:20',
+                'phone' => 'sometimes|nullable|string|max:20',
+                'email' => 'sometimes|nullable|string|max:150',
                 'status' => 'sometimes|boolean'
             ],
             default => [
                 'name' => 'required|string|max:150',
-                'description' => 'sometimes|nullable|string|max:255',
-                'image' => 'sometimes|nullable|image|max:2048',
-                'display_order' => 'sometimes|nullable|integer|min:1'
-            ],
+                'cnpj' => 'sometimes|nullable|string|max:20',
+                'phone' => 'sometimes|nullable|string|max:20',
+                'email' => 'sometimes|nullable|string|max:150',
+                'status' => 'sometimes|boolean'
+            ]
         };
     }
-
-    public function attributes(): array
+    public function attributes()
     {
         return __('validation.attributes');
     }

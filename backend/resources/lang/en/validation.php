@@ -17,6 +17,12 @@ return [
     'boolean' => 'The :attribute field must be true or false.',
     'confirmed' => 'The :attribute confirmation does not match.',
     'exists' => 'The selected :attribute is invalid.',
+    'numeric' => 'The :attribute must be a number.',
+    'array' => 'The :attribute must be an array.',
+    'required_with' => 'The :attribute field is required when :values is present.',
+    'lt' => [
+        'numeric' => 'The :attribute must be less than :value.',
+    ],
 
     'custom' => [
         'email' => [
@@ -37,5 +43,11 @@ return [
         'new_password' => 'new password',
         'new_email' => 'new email',
         'token' => 'token',
+        'category_id' => 'category',
+        'price' => 'price',
+        'promotional_price' => 'promotional price',
+        'ingredients' => 'ingredients',
+        'ingredients.*.id' => 'ingredient',
+        'ingredients.*.quantity' => 'quantity',
     ],
 ];
