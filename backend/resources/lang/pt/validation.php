@@ -49,5 +49,7 @@ return [
         'ingredients' => 'ingredientes',
         'ingredients.*.id' => 'ingrediente',
         'ingredients.*.quantity' => 'quantidade',
+        'number' => 'número',
+        'capacity' => 'capacidade'
     ],
 ];

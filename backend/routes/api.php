@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\UnitMeasureController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,42 +43,11 @@ Route::prefix('/auth')->group(function () {
         ->where('provider', 'google|facebook|apple');
 });
 
-Route::prefix('categories')->group(function(){
-    Route::post('/', [CategoryController::class, 'store']);
-    Route::get('/', [CategoryController::class, 'index']);
-    Route::get('/{id}', [CategoryController::class, 'show']);
-    Route::put('/{id}', [CategoryController::class, 'update']);
-    Route::delete('/{id}', [CategoryController::class, 'destroy']);
-});
-
-Route::prefix('suppliers')->group(function(){
-    Route::post('/', [SupplierController::class, 'store']);
-    Route::get('/', [SupplierController::class, 'index']);
-    Route::get('/{id}', [SupplierController::class, 'show']);
-    Route::put('/{id}', [SupplierController::class, 'update']);
-    Route::delete('/{id}', [SupplierController::class, 'destroy']);
-});
-
-Route::prefix('unitMeasures')->group(function(){
-    Route::post('/', [UnitMeasureController::class, 'store']);
-    Route::get('/', [UnitMeasureController::class, 'index']);
-    Route::get('/{id}', [UnitMeasureController::class, 'show']);
-    Route::put('/{id}', [UnitMeasureController::class, 'update']);
-    Route::delete('/{id}', [UnitMeasureController::class, 'destroy']);
-});
-
-Route::prefix('ingredients')->group(function(){
-    Route::post('/', [IngredientController::class, 'store']);
-    Route::get('/', [IngredientController::class, 'index']);
-    Route::get('/{id}', [IngredientController::class, 'show']);
-    Route::put('/{id}', [IngredientController::class, 'update']);
-    Route::delete('/{id}', [IngredientController::class, 'destroy']);
-});
-
-Route::prefix('products')->group(function(){
-    Route::post('/', [ProductController::class, 'store']);
-    Route::get('/', [ProductController::class, 'index']);
-    Route::get('/{id}', [ProductController::class, 'show']);
-    Route::put('/{id}', [ProductController::class, 'update']);
-    Route::delete('/{id}', [ProductController::class, 'destroy']);
-});
+Route::apiResources([
+    'categories' => CategoryController::class,
+    'suppliers' => SupplierController::class,
+    'unitMeasures' => UnitMeasureController::class,
+    'ingredients' => IngredientController::class,
+    'products' => ProductController::class,
+    'tables' => TableController::class
+]);
