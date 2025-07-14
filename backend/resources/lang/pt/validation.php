@@ -58,5 +58,6 @@ return [
         'refference' => 'referência',
         'complement' => 'complemento',
         'is_default' => 'valor padrão',
+        'address_id' => 'endereço'
     ],
 ];

@@ -255,15 +255,15 @@ CREATE TABLE tables (
     deleted_at DATETIME NULL
 );
 
--- 5.2 order_delivery (entregas dos pedidos)
-CREATE TABLE order_delivery (
+-- 5.2 delivery (entregas dos pedidos)
+CREATE TABLE deliveries (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     address_id BIGINT NOT NULL,
-    delivery_price DECIMAL(10,2) NOT NULL,
+    price DECIMAL(10,2) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME NULL,
-    CONSTRAINT fk_order_delivery_address FOREIGN KEY (address_id) REFERENCES addresses(id)
+    CONSTRAINT fk_delivery_address FOREIGN KEY (address_id) REFERENCES addresses(id)
 );
 
 -- 5.3 orders (pedidos)
@@ -271,7 +271,7 @@ CREATE TABLE orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     employee_id BIGINT NOT NULL,
-    order_delivery_id BIGINT NULL,
+    delivery_id BIGINT NULL,
     table_id INT NULL,
     order_type ENUM('dine-in', 'delivery', 'takeout') NOT NULL,
     status ENUM('pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled') DEFAULT 'pending' NOT NULL,
@@ -290,7 +290,7 @@ CREATE TABLE orders (
     deleted_at DATETIME NULL,
     CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_orders_employee FOREIGN KEY (employee_id) REFERENCES users(id),
-    CONSTRAINT fk_order_order_delivery FOREIGN KEY (order_delivery_id) REFERENCES order_delivery(id),
+    CONSTRAINT fk_order_delivery FOREIGN KEY (delivery_id) REFERENCES delivery(id),
     CONSTRAINT fk_orders_table FOREIGN KEY (table_id) REFERENCES tables(id)
 );
 
@@ -465,10 +465,10 @@ CREATE INDEX idx_ingredients_movements_ingredient_id ON ingredients_movements(in
 CREATE INDEX idx_ingredients_movements_user_id ON ingredients_movements(user_id);
 
 -- ## Orders and Tables
-CREATE INDEX idx_order_delivery_address_id ON order_delivery(address_id);
+CREATE INDEX idx_delivery_address_id ON delivery(address_id);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_orders_employee_id ON orders(employee_id);
-CREATE INDEX idx_orders_order_delivery_id ON orders(order_delivery_id);
+CREATE INDEX idx_orders_delivery_id ON orders(delivery_id);
 CREATE INDEX idx_orders_table_id ON orders(table_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_order_date ON orders(order_date);

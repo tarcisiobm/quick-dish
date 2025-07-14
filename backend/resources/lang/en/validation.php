@@ -57,6 +57,7 @@ return [
         'state' => 'state',
         'refference' => 'refference',
         'complement' => 'complement',
-        'is_default' => 'default value'
+        'is_default' => 'default value',
+        'address_id' => 'address'
     ],
 ];

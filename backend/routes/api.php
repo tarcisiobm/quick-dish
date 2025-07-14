@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\DeliveryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\IngredientController;
@@ -53,5 +54,6 @@ Route::apiResources([
     'products' => ProductController::class,
     'tables' => TableController::class,
     'paymentTypes' => PaymentTypeController::class,
-    'addresses' => AddressController::class
+    'addresses' => AddressController::class,
+    'deliveries' => DeliveryController::class
 ]);
