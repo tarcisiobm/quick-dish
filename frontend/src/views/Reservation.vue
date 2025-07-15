@@ -1,63 +1,119 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { PhCalendar, PhClock, PhUsers, PhUser, PhPhone, PhEnvelope, PhCheck } from '@phosphor-icons/vue';
+import { ref, reactive, onMounted } from 'vue';
+import { PhCalendar, PhClock, PhUsers, PhCheck } from '@phosphor-icons/vue';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
+const authStore = useAuthStore();
 
+// Estado do formulário
 const reservationForm = reactive({
-  name: '',
-  email: '',
-  phone: '',
   date: '',
   time: '',
   guests: 2,
   specialRequests: ''
 });
 
-
+// Estado da interface
 const isLoading = ref(false);
 const showSuccess = ref(false);
+const user = ref(null);
 
-
+// Opções de horários disponíveis
 const timeSlots = [
   '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'
 ];
 
+// Opções de número de pessoas
 const guestOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+// Buscar dados do usuário autenticado (desativado temporariamente)
+// const fetchUserData = async () => {
+//   try {
+//     const token = localStorage.getItem('auth_token');
+//     if (token) {
+//       const response = await axios.get('http://localhost:8000/api/auth/me', {
+//         headers: {
+//           'Authorization': `Bearer ${token}`
+//         }
+//       });
+//       user.value = response.data;
+//     } else {
+//       // Para testes sem autenticação, vamos simular um usuário
+//       user.value = {
+//         name: 'Usuário de Teste',
+//         email: 'teste@quickdish.com',
+//         phone: '(11) 99999-9999'
+//       };
+//     }
+//   } catch (error) {
+//     console.error('Erro ao buscar dados do usuário:', error);
+//     // Para testes sem autenticação, vamos simular um usuário
+//     user.value = {
+//       name: 'Usuário de Teste',
+//       email: 'teste@quickdish.com',
+//       phone: '(11) 99999-9999'
+//     };
+//   }
+// };
 
+// Função para submeter a reserva (sem autenticação)
 const submitReservation = async () => {
   isLoading.value = true;
-  
-  setTimeout(() => {
-    isLoading.value = false;
+  showSuccess.value = false; // Resetar mensagem de sucesso
+
+  try {
+    // Removido a verificação de token para testes sem autenticação
+    const response = await axios.post('http://localhost:8000/api/reservations', {
+      reservation_date: reservationForm.date,
+      reservation_time: reservationForm.time,
+      number_of_guests: reservationForm.guests,
+      special_requests: reservationForm.specialRequests
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+        // Removido o header Authorization para testes sem autenticação
+      }
+    });
+
+    console.log('Reserva criada com sucesso:', response.data);
     showSuccess.value = true;
     
+    // Limpar formulário após sucesso
+    Object.assign(reservationForm, {
+      date: '',
+      time: '',
+      guests: 2,
+      specialRequests: ''
+    });
+
+    // Opcional: esconder mensagem de sucesso após alguns segundos
     setTimeout(() => {
       showSuccess.value = false;
-      Object.assign(reservationForm, {
-        name: '',
-        email: '',
-        phone: '',
-        date: '',
-        time: '',
-        guests: 2,
-        specialRequests: ''
-      });
-    }, 3000);
-  }, 2000);
+    }, 5000);
+
+  } catch (error: any) {
+    console.error('Erro ao criar reserva:', error.response ? error.response.data : error.message);
+    // Aqui você pode adicionar uma notificação de erro mais detalhada para o usuário
+    alert('Erro ao criar reserva: ' + (error.response && error.response.data.message ? error.response.data.message : 'Verifique o console para mais detalhes.'));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
+// Validação básica
 const isFormValid = () => {
-  return reservationForm.name && 
-         reservationForm.email && 
-         reservationForm.phone && 
-         reservationForm.date && 
-         reservationForm.time;
+  return reservationForm.date && reservationForm.time && reservationForm.guests > 0;
 };
+
+// onMounted(() => {
+//   fetchUserData();
+// });
 </script>
 
 <template>
   <div class="reservations-container">
+    <!-- Header -->
     <div class="page-header">
       <h1 class="page-title color-title">Reservas</h1>
       <p class="page-subtitle color-subtitle">
@@ -65,6 +121,7 @@ const isFormValid = () => {
       </p>
     </div>
 
+    <!-- Success Message -->
     <v-alert
       v-if="showSuccess"
       type="success"
@@ -88,47 +145,17 @@ const isFormValid = () => {
       <v-card-text class="card-content">
         <v-form @submit.prevent="submitReservation">
           <v-row>
-            <v-col cols="12">
-              <h3 class="section-title color-subtitle mb-4">Informações Pessoais</h3>
+            <!-- Informações do Usuário (somente leitura) -->
+            <v-col cols="12" v-if="authStore.user">
+              <h3 class="section-title color-subtitle mb-4">Dados da Reserva</h3>
+              <div class="user-info mb-4">
+                <p><strong>Nome:</strong> {{ authStore.user?.name }}</p>
+                <p><strong>E-mail:</strong> {{ authStore.user?.email }}</p>
+                <p v-if="authStore.user?.phone"><strong>Telefone:</strong> {{ authStore.user?.phone }}</p>
+              </div>
             </v-col>
 
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="reservationForm.name"
-                label="Nome completo"
-                :prepend-inner-icon="PhUser"
-                variant="outlined"
-                required
-                :rules="[v => !!v || 'Nome é obrigatório']"
-              />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="reservationForm.email"
-                label="E-mail"
-                type="email"
-                :prepend-inner-icon="PhEnvelope"
-                variant="outlined"
-                required
-                :rules="[
-                  v => !!v || 'E-mail é obrigatório',
-                  v => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'
-                ]"
-              />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="reservationForm.phone"
-                label="Telefone"
-                :prepend-inner-icon="PhPhone"
-                variant="outlined"
-                required
-                :rules="[v => !!v || 'Telefone é obrigatório']"
-              />
-            </v-col>
-
+            <!-- Detalhes da Reserva -->
             <v-col cols="12">
               <h3 class="section-title color-subtitle mb-4 mt-4">Detalhes da Reserva</h3>
             </v-col>
@@ -154,7 +181,7 @@ const isFormValid = () => {
                 :prepend-inner-icon="PhClock"
                 variant="outlined"
                 required
-                :rules="[v => !!v || 'Horário é obrigatório']"
+                :rules="[v => !!v || 'Horário é obrigatória']"
               />
             </v-col>
 
@@ -169,6 +196,7 @@ const isFormValid = () => {
               />
             </v-col>
 
+            <!-- Observações -->
             <v-col cols="12">
               <v-textarea
                 v-model="reservationForm.specialRequests"
@@ -186,7 +214,7 @@ const isFormValid = () => {
                 variant="outlined"
                 color="text"
                 @click="Object.assign(reservationForm, {
-                  name: '', email: '', phone: '', date: '', time: '', guests: 2, specialRequests: ''
+                  date: '', time: '', guests: 2, specialRequests: ''
                 })"
               >
                 Limpar
@@ -209,6 +237,7 @@ const isFormValid = () => {
       </v-card-text>
     </v-card>
 
+    <!-- Informações Adicionais -->
     <v-card class="info-card mt-6" elevation="1">
       <v-card-text>
         <h3 class="color-subtitle mb-3">Informações Importantes</h3>
@@ -278,6 +307,18 @@ const isFormValid = () => {
   margin: 0 auto;
 }
 
+.user-info {
+  background-color: rgb(var(--v-theme-background));
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgb(var(--v-theme-border));
+  
+  p {
+    margin: 4px 0;
+    color: rgb(var(--v-theme-text));
+  }
+}
+
 .reservation-card {
   background-color: rgb(var(--v-theme-alt_background));
   border: 1px solid rgb(var(--v-theme-border));
@@ -336,6 +377,7 @@ const isFormValid = () => {
   }
 }
 
+// Responsividade
 @media (max-width: 768px) {
   .reservations-container {
     padding: 16px;

@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\UnitMeasureController;
 use App\Http\Controllers\Api\PaymentTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ReservationController;
 
 Route::prefix('/auth')->group(function () {
     Route::post('/sign-up', [AuthController::class, 'register']);
