@@ -65,5 +65,13 @@ return [
         'hire_date' => 'hire date',
         'termination_date' => 'termination date',
         'work_schedule' => 'work schedule',
+        'code' => 'code',
+        'discount_type' => 'discount type',
+        'discount_value' => 'discount value',
+        'min_order_value' => 'minimum order value',
+        'usage_limit' => 'usage limit',
+        'used_count' => 'used count',
+        'start_date' => 'start date',
+        'end_date' => 'end date',
     ],
 ];

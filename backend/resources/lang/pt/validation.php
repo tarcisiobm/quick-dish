@@ -65,5 +65,13 @@ return [
         'hire_date' => 'data de contratação',
         'termination_date' => 'data de desligamento',
         'work_schedule' => 'jornada de trabalho',
+        'code' => 'código',
+        'discount_type' => 'tipo de desconto',
+        'discount_value' => 'valor do desconto',
+        'min_order_value' => 'valor mínimo do pedido',
+        'usage_limit' => 'limite de uso',
+        'used_count' => 'quantidade utilizada',
+        'start_date' => 'data de início',
+        'end_date' => 'data de término',
     ],
 ];

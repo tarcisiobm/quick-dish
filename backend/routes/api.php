@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\DeliveryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
@@ -15,7 +16,6 @@ use App\Http\Controllers\Api\UnitMeasureController;
 use App\Http\Controllers\Api\PaymentTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ReservationController;
 
 Route::prefix('/auth')->group(function () {
     Route::post('/sign-up', [AuthController::class, 'register']);
@@ -58,5 +58,6 @@ Route::apiResources([
     'paymentTypes' => PaymentTypeController::class,
     'addresses' => AddressController::class,
     'deliveries' => DeliveryController::class,
-    'employees' => EmployeeController::class
+    'employees' => EmployeeController::class,
+    'coupons' => CouponController::class
 ]);

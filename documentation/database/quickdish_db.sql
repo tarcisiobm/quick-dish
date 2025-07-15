@@ -373,9 +373,9 @@ CREATE TABLE coupons (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     deleted_at DATETIME NULL,
-    CONSTRAINT chk_coupons_dates CHECK (end_date >= start_date),
-    CONSTRAINT chk_coupons_discount_value CHECK (discount_value >= 0),
-    CONSTRAINT chk_coupons_min_order_value CHECK (min_order_value >= 0)
+    -- CONSTRAINT chk_coupons_dates CHECK (end_date >= start_date),
+    -- CONSTRAINT chk_coupons_discount_value CHECK (discount_value >= 0),
+    -- CONSTRAINT chk_coupons_min_order_value CHECK (min_order_value >= 0)
 );
 
 -- 6.4 payments (pagamentos)
