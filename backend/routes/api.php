@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\UnitMeasureController;
 use App\Http\Controllers\Api\PaymentTypeController;
+use App\Http\Controllers\Api\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -59,5 +60,6 @@ Route::apiResources([
     'addresses' => AddressController::class,
     'deliveries' => DeliveryController::class,
     'employees' => EmployeeController::class,
-    'coupons' => CouponController::class
+    'coupons' => CouponController::class,
+    'reservations' => ReservationController::class
 ]);
