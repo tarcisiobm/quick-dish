@@ -21,7 +21,7 @@ class EmployeeRequest extends FormRequest
      */
     public function rules(): array
     {
-        return match($this->method()) {
+        return match ($this->method()) {
             'PUT', 'PATCH' => [
                 'job_title' => 'sometimes|required|string|max:150',
                 'salary' => 'sometimes|required|numeric|min:0',
