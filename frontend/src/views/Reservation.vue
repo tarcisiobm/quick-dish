@@ -50,9 +50,9 @@ const submitReservation = async () => {
       'Content-Type': 'application/json',
     };
 
-    if (token) {
-      headers as any['Authorization'] ; `Bearer ${token}`;
-    }
+    // if (token) {
+    //   headers as any['Authorization'] ; `Bearer ${token}`;
+    // }
 
     const response = await axios.post('http://localhost:8000/api/reservations', payload, { headers });
 

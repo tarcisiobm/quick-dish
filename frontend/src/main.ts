@@ -6,6 +6,10 @@ import vuetify from './plugins/vuetify';
 import { createI18n } from 'vue-i18n';
 import locales from '@/locales/i18n';
 import './styles/index.scss';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 const i18n = createI18n({
   legacy: false,
@@ -15,7 +19,7 @@ const i18n = createI18n({
 });
 
 const app = createApp(App);
-app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.use(i18n);
 app.use(vuetify);

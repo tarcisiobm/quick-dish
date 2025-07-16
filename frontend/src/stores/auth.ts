@@ -203,4 +203,4 @@ export const useAuthStore = defineStore('auth', () => {
     setNewPassword,
     handleAuthMessage
   };
-});
+}, {persist: true});

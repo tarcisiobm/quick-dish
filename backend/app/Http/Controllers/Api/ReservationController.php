@@ -48,11 +48,11 @@ class ReservationController extends Controller
             "user_phone" => "nullable|string|max:20",
         ]);
 
-        $userId = Auth::check() ? Auth::id() : null;
+        // $userId = Auth::check() ? Auth::id() : null;
         
-        if (!$userId) {
-            return response()->json(['message' => 'Autenticação necessária para fazer uma reserva.'], 401);
-        }
+        // if (!$userId) {
+        //     return response()->json(['message' => 'Autenticação necessária para fazer uma reserva.'], 401);
+        // }
 
         $reservationDate = Carbon::parse($request->reservation_date)->toDateString();
         $startTime = $request->reservation_time;
@@ -82,7 +82,7 @@ class ReservationController extends Controller
 
         try {
             $reservation = Reservation::create([
-                "user_id" => $userId,
+                "user_id" => $request->user_id,
                 "table_id" => $availableTable->id,
                 "guest_name" => $request->user_name,
                 "guest_email" => $request->user_email,
