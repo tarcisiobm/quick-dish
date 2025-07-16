@@ -1,10 +1,37 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { PhCalendar, PhClock, PhUsers, PhUser, PhPhone, PhEnvelope, PhEye, PhTrash, PhDownload } from '@phosphor-icons/vue';
+import { PhCalendar, PhClock, PhUsers, PhEye, PhTrash, PhDownload } from '@phosphor-icons/vue';
 import axios from 'axios';
 
-// Estado das reservas
-const reservations = ref([]);
+import { useAuthStore } from '@/stores/auth';
+// Importação de DateTimeOptions não é necessária aqui, a menos que você a use para algo específico do i18n
+// e esteja aplicando no template. Para tipagem de dados, 'string' é o mais adequado.
+// import type { DateTimeOptions } from 'vue-i18n'; // <-- Pode ser removida se não for usada para i18n complexo
+
+// Interfaces de Tipagem
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  // Adicione outras propriedades do usuário se necessário
+}
+
+// **CORREÇÃO AQUI: reservation_date deve ser string**
+interface Reservation {
+  id: number;
+  reservation_date: string; // Data no formato string (ex: 'YYYY-MM-DD')
+  reservation_time: string; // Horário no formato string (ex: 'HH:MM')
+  number_of_guests: number;
+  special_requests: string | null;
+  status: string;
+  created_at: string; // Data de criação (provavelmente string ISO 8601)
+  user: User; // A reserva tem um objeto de usuário aninhado
+  // Adicione outras propriedades da reserva que sua API possa retornar
+}
+
+// Estado das reservas - **CORREÇÃO AQUI: tipagem explícita**
+const reservations = ref<Reservation[]>([]);
 const isLoading = ref(false);
 const filters = reactive({
   date: '',
@@ -21,8 +48,8 @@ const statusOptions = [
 // Headers da tabela
 const headers = [
   { title: 'ID', key: 'id', sortable: true },
-  { title: 'Cliente', key: 'user.name', sortable: true },
-  { title: 'E-mail', key: 'user.email', sortable: true },
+  { title: 'Cliente', key: 'user.name', sortable: true }, // Acessa propriedade aninhada
+  { title: 'E-mail', key: 'user.email', sortable: true }, // Acessa propriedade aninhada
   { title: 'Data', key: 'reservation_date', sortable: true },
   { title: 'Horário', key: 'reservation_time', sortable: true },
   { title: 'Pessoas', key: 'number_of_guests', sortable: true },
@@ -41,22 +68,41 @@ const fetchReservations = async () => {
       },
       params: filters
     });
-    reservations.value = response.data.data || response.data;
+    // Mapeia os dados para garantir a tipagem e o tratamento de valores nulos/string-numérica
+    const rawData = response.data.data || response.data;
+    reservations.value = rawData.map((r: any) => ({
+      id: r.id,
+      reservation_date: r.reservation_date || '', // Garante que é string
+      reservation_time: r.reservation_time || '', // Garante que é string
+      number_of_guests: Number(r.number_of_guests) || 0, // Garante que é número
+      special_requests: r.special_requests || null,
+      status: r.status || 'unknown', // Default para status
+      created_at: r.created_at || '', // Garante que é string
+      user: { // Garante a estrutura do objeto user
+        id: r.user?.id || 0,
+        name: r.user?.name || 'N/A',
+        email: r.user?.email || 'N/A',
+        phone: r.user?.phone || null,
+      }
+    }));
+
   } catch (error) {
     console.error('Erro ao buscar reservas:', error);
+    reservations.value = []; // Limpa as reservas em caso de erro
   } finally {
     isLoading.value = false;
   }
 };
 
 // Visualizar detalhes da reserva
-const viewReservation = (reservation) => {
-  // Implementar modal ou navegação para detalhes
+const viewReservation = (reservation: Reservation) => { // Tipagem do parâmetro
   console.log('Visualizar reserva:', reservation);
+  // Implementar modal ou navegação para detalhes
+  // Ex: router.push(`/admin/reservations/${reservation.id}`);
 };
 
 // Cancelar reserva
-const cancelReservation = async (reservationId) => {
+const cancelReservation = async (reservationId: number) => { // Tipagem do parâmetro
   if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
     try {
       const token = localStorage.getItem('auth_token');
@@ -68,24 +114,59 @@ const cancelReservation = async (reservationId) => {
       await fetchReservations(); // Recarregar lista
     } catch (error) {
       console.error('Erro ao cancelar reserva:', error);
+      alert('Erro ao cancelar reserva. Por favor, tente novamente.');
     }
   }
 };
 
 // Exportar relatório
 const exportReport = () => {
-  // Implementar exportação para CSV/PDF
   console.log('Exportar relatório');
+  // Lógica para exportar, por exemplo, gerando um CSV
+  // Exemplo básico de CSV:
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += headers.map(h => h.title).join(',') + "\r\n"; // Cabeçalhos
+  reservations.value.forEach(row => {
+    // Adapte aqui para os campos que você quer no CSV
+    const rowData = [
+      row.id,
+      `"${row.user?.name || 'N/A'}"`, // Aspas para nomes com vírgulas
+      row.user?.email || 'N/A',
+      formatDate(row.reservation_date),
+      row.reservation_time,
+      row.number_of_guests,
+      formatDateTime(row.created_at)
+    ];
+    csvContent += rowData.join(',') + "\r\n";
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "reservas_relatorio.csv");
+  document.body.appendChild(link); // Required for Firefox
+  link.click(); // This will download the data file named "my_data.csv".
+  document.body.removeChild(link); // Clean up
 };
 
-// Formatar data
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('pt-BR');
+// Formatar data (mantida como estava, com pequena melhoria para segurança)
+const formatDate = (dateString: string | undefined) => { // Permite string ou undefined
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+  } catch {
+    return dateString; // Em caso de erro, retorna a string original
+  }
 };
 
-// Formatar data e hora
-const formatDateTime = (dateString) => {
-  return new Date(dateString).toLocaleString('pt-BR');
+// Formatar data e hora (mantida como estava, com pequena melhoria para segurança)
+const formatDateTime = (dateString: string | undefined) => { // Permite string ou undefined
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleString('pt-BR', { timeZone: 'UTC' });
+  } catch {
+    return dateString; // Em caso de erro, retorna a string original
+  }
 };
 
 onMounted(() => {
@@ -95,7 +176,6 @@ onMounted(() => {
 
 <template>
   <div class="admin-reservations-container">
-    <!-- Header -->
     <div class="page-header">
       <h1 class="page-title color-title">Relatório de Reservas</h1>
       <p class="page-subtitle color-subtitle">
@@ -103,7 +183,6 @@ onMounted(() => {
       </p>
     </div>
 
-    <!-- Filtros -->
     <v-card class="filters-card mb-6" elevation="1">
       <v-card-text>
         <v-row align="center">
@@ -124,6 +203,8 @@ onMounted(() => {
               v-model="filters.status"
               label="Status"
               :items="statusOptions"
+              item-title="title"
+              item-value="value"
               variant="outlined"
               density="compact"
               @update:model-value="fetchReservations"
@@ -155,7 +236,6 @@ onMounted(() => {
       </v-card-text>
     </v-card>
 
-    <!-- Estatísticas -->
     <v-row class="mb-6">
       <v-col cols="12" md="3">
         <v-card class="stats-card" elevation="2">
@@ -170,7 +250,7 @@ onMounted(() => {
         <v-card class="stats-card" elevation="2">
           <v-card-text class="text-center">
             <div class="stats-number color-success">
-              {{ reservations.filter(r => new Date(r.reservation_date) >= new Date()).length }}
+              {{ reservations.filter(r => new Date(r.reservation_date).setHours(0,0,0,0) >= new Date().setHours(0,0,0,0)).length }}
             </div>
             <div class="stats-label color-subtitle">Próximas Reservas</div>
           </v-card-text>
@@ -200,7 +280,6 @@ onMounted(() => {
       </v-col>
     </v-row>
 
-    <!-- Tabela de Reservas -->
     <v-card class="reservations-table-card" elevation="2">
       <v-card-title class="card-header">
         <PhCalendar size="24" class="color-primary mr-3" />
@@ -222,6 +301,10 @@ onMounted(() => {
             </v-avatar>
             <span>{{ item.user?.name || 'N/A' }}</span>
           </div>
+        </template>
+
+        <template v-slot:item.user.email="{ item }">
+          <span>{{ item.user?.email || 'N/A' }}</span>
         </template>
 
         <template v-slot:item.reservation_date="{ item }">
@@ -307,13 +390,13 @@ onMounted(() => {
 .stats-card {
   background-color: rgb(var(--v-theme-alt_background));
   border: 1px solid rgb(var(--v-theme-border));
-  
+
   .stats-number {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 4px;
   }
-  
+
   .stats-label {
     font-size: 0.875rem;
     font-weight: 500;
@@ -337,15 +420,15 @@ onMounted(() => {
 
 .reservations-table {
   background-color: transparent;
-  
+
   :deep(.v-data-table__wrapper) {
     background-color: transparent;
   }
-  
+
   :deep(.v-data-table-header) {
     background-color: rgb(var(--v-theme-background));
   }
-  
+
   :deep(.v-data-table-rows-no-data) {
     background-color: transparent;
   }
@@ -356,14 +439,13 @@ onMounted(() => {
   .admin-reservations-container {
     padding: 16px;
   }
-  
+
   .page-title {
     font-size: 2rem;
   }
-  
+
   .stats-card .stats-number {
     font-size: 1.5rem;
   }
 }
 </style>
-

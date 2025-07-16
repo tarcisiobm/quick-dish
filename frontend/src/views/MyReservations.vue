@@ -3,11 +3,25 @@ import { ref, reactive, onMounted } from 'vue';
 import { PhCalendar, PhClock, PhUsers, PhUser, PhPhone, PhEnvelope, PhEye, PhTrash, PhEdit, PhPlus } from '@phosphor-icons/vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 const router = useRouter();
 
-// Estado das reservas
-const reservations = ref([]);
+// 1. Definir a interface para a estrutura de uma reserva
+interface Reservation {
+  id: number; // Supondo que cada reserva tem um ID
+  reservation_date: string;
+  reservation_time: string;
+  number_of_guests: number;
+  special_requests: string | null;
+  status: string; // Você pode refinar isso para um union type se tiver status fixos (ex: 'confirmada' | 'cancelada')
+  // Adicione outras propriedades que seus objetos de reserva possam ter
+}
+
+// Estado das reservas - agora tipado com a interface Reservation
+const reservations = ref<Reservation[]>([]); // <--- AQUI ESTÁ A MUDANÇA PRINCIPAL
 const isLoading = ref(false);
 const user = ref(null);
 
@@ -48,6 +62,8 @@ const fetchMyReservations = async () => {
         'Authorization': `Bearer ${token}`
       }
     });
+    // Garantir que os dados recebidos correspondam à interface, se necessário
+    // Uma asserção de tipo pode ser usada aqui, ou validação mais robusta se os dados da API forem incertos
     reservations.value = response.data.data || response.data;
   } catch (error) {
     console.error('Erro ao buscar reservas:', error);
@@ -57,7 +73,7 @@ const fetchMyReservations = async () => {
 };
 
 // Cancelar reserva
-const cancelReservation = async (reservationId) => {
+const cancelReservation = async (reservationId: number) => { // <--- Tipagem para reservationId
   if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
     try {
       const token = localStorage.getItem('auth_token');
@@ -79,18 +95,18 @@ const goToNewReservation = () => {
 };
 
 // Formatar data
-const formatDate = (dateString) => {
+const formatDate = (dateString: string) => { // <--- Tipagem para dateString
   return new Date(dateString).toLocaleDateString('pt-BR');
 };
 
 // Verificar se a reserva é futura
-const isFutureReservation = (reservation) => {
+const isFutureReservation = (reservation: Reservation) => { // <--- Tipagem para reservation
   const reservationDateTime = new Date(`${reservation.reservation_date}T${reservation.reservation_time}`);
   return reservationDateTime > new Date();
 };
 
 // Obter status da reserva
-const getReservationStatus = (reservation) => {
+const getReservationStatus = (reservation: Reservation) => { // <--- Tipagem para reservation
   if (isFutureReservation(reservation)) {
     return { text: 'Confirmada', color: 'success' };
   } else {
@@ -106,7 +122,6 @@ onMounted(() => {
 
 <template>
   <div class="my-reservations-container">
-    <!-- Header -->
     <div class="page-header">
       <h1 class="page-title color-title">Minhas Reservas</h1>
       <p class="page-subtitle color-subtitle">
@@ -114,23 +129,21 @@ onMounted(() => {
       </p>
     </div>
 
-    <!-- User Info -->
-    <v-card class="user-info-card mb-6" elevation="1" v-if="user">
+    <v-card class="user-info-card mb-6" elevation="1" v-if="authStore.user">
       <v-card-text>
         <div class="d-flex align-center">
           <v-avatar size="64" class="mr-4" color="primary">
-            <span class="text-white text-h5">{{ user.name?.charAt(0) || 'U' }}</span>
+            <span class="text-white text-h5">{{ authStore.user?.name?.charAt(0) || 'U' }}</span>
           </v-avatar>
           <div>
-            <h3 class="color-title mb-1">{{ user.name }}</h3>
-            <p class="color-subtitle mb-1">{{ user.email }}</p>
-            <p class="color-text" v-if="user.phone">{{ user.phone }}</p>
+            <h3 class="color-title mb-1">{{ authStore.user?.name }}</h3>
+            <p class="color-subtitle mb-1">{{ authStore.user?.email }}</p>
+            <p class="color-text" v-if="authStore.user?.phone">{{ authStore.user?.phone }}</p>
           </div>
         </div>
       </v-card-text>
     </v-card>
 
-    <!-- Actions -->
     <div class="d-flex justify-between align-center mb-6">
       <div>
         <h2 class="color-title">Suas Reservas</h2>
@@ -146,7 +159,6 @@ onMounted(() => {
       </v-btn>
     </div>
 
-    <!-- Reservations Table -->
     <v-card class="reservations-table-card" elevation="2">
       <v-card-title class="card-header">
         <PhCalendar size="24" class="color-primary mr-3" />
@@ -190,9 +202,9 @@ onMounted(() => {
         </template>
 
         <template v-slot:item.status="{ item }">
-          <v-chip 
-            size="small" 
-            :color="getReservationStatus(item).color" 
+          <v-chip
+            size="small"
+            :color="getReservationStatus(item).color"
             variant="tonal"
           >
             {{ getReservationStatus(item).text }}
@@ -229,7 +241,6 @@ onMounted(() => {
       </v-data-table>
     </v-card>
 
-    <!-- Statistics -->
     <v-row class="mt-6">
       <v-col cols="12" md="4">
         <v-card class="stats-card" elevation="2">
@@ -255,7 +266,7 @@ onMounted(() => {
         <v-card class="stats-card" elevation="2">
           <v-card-text class="text-center">
             <div class="stats-number color-info">
-              {{ reservations.reduce((sum, r) => sum + r.number_of_guests, 0) }}
+               {{ reservations.reduce((sum, r) => sum + (Number(r.number_of_guests) || 0), 0) }}
             </div>
             <div class="stats-label color-subtitle">Total de Pessoas</div>
           </v-card-text>
@@ -297,13 +308,13 @@ onMounted(() => {
 .stats-card {
   background-color: rgb(var(--v-theme-alt_background));
   border: 1px solid rgb(var(--v-theme-border));
-  
+
   .stats-number {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 4px;
   }
-  
+
   .stats-label {
     font-size: 0.875rem;
     font-weight: 500;
@@ -327,15 +338,15 @@ onMounted(() => {
 
 .reservations-table {
   background-color: transparent;
-  
+
   :deep(.v-data-table__wrapper) {
     background-color: transparent;
   }
-  
+
   :deep(.v-data-table-header) {
     background-color: rgb(var(--v-theme-background));
   }
-  
+
   :deep(.v-data-table-rows-no-data) {
     background-color: transparent;
   }
@@ -346,14 +357,13 @@ onMounted(() => {
   .my-reservations-container {
     padding: 16px;
   }
-  
+
   .page-title {
     font-size: 2rem;
   }
-  
+
   .stats-card .stats-number {
     font-size: 1.5rem;
   }
 }
 </style>
-

@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\PaymentTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\AboutUsController; 
 
 Route::prefix('/auth')->group(function () {
     Route::post('/sign-up', [AuthController::class, 'register']);
@@ -106,3 +107,5 @@ Route::apiResources([
     'paymentTypes' => PaymentTypeController::class,
     'addresses' => AddressController::class
 ]);
+
+Route::get('/about-us', [AboutUsController::class, 'index']);

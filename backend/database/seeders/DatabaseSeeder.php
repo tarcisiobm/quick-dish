@@ -20,4 +20,12 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
     }
+
+    public function run_1(): void
+    {
+        $this->call([
+            TableSeeder::class,
+            // ... outros seeders
+        ]);
+    }
 }

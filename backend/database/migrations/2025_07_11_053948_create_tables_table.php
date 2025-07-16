@@ -12,11 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tables', function (Blueprint $table) {
-            $table->bigIncrements('id'); // <-- ALTERE ESTA LINHA PARA bigIncrements
-            $table->integer('number')->unique();
-            $table->tinyInteger('capacity');
+            $table->id();
+            $table->integer('number');
             $table->boolean('status')->default(true);
-
+            $table->tinyInteger('capacity');
             $table->timestamps();
             $table->softDeletes();
         });
