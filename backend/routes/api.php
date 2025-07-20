@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\IngredientController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\TableController;
@@ -61,5 +62,6 @@ Route::apiResources([
     'deliveries' => DeliveryController::class,
     'employees' => EmployeeController::class,
     'coupons' => CouponController::class,
-    'reservations' => ReservationController::class
+    'reservations' => ReservationController::class,
+    'orders' => OrderController::class
 ]);

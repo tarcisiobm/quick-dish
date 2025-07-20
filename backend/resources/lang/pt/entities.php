@@ -7,5 +7,7 @@ return [
     'ingredient' => 'Ingrediente',
     'product' => 'Produto',
     'table' => 'Mesa',
-    'paymenttype' => 'Tipo de pagamento'
+    'paymenttype' => 'Tipo de pagamento',
+    'delivery' => 'Entrega',
+    'order' => 'Pedido',
 ];

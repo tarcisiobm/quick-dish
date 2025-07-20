@@ -13,18 +13,10 @@ return [
     'failed' => 'Operação falhou.',
     'reservation_conflict' => 'Existe uma reserva realizada para esse momento.',
     'table_unavailable' => '',
-    'insufficient_table_capacity' => ''
+    'insufficient_table_capacity' => '',
+    'coupon_invalid' => 'O cupom é inválido, expirado ou não atende aos requisitos.',
+    'product_unavailable' => 'O produto :name está indisponível.',
+    'ingredient_unavailable' => 'O ingrediente :name está indisponível.',
+    'insufficient_stock' => 'Estoque insuficiente para o ingrediente: :name. Disponível: :available.',
+    'order_status_update_invalid' => 'Este pedido não pode ser atualizado para o novo status.',
 ];
-
-
-        if ($reservation->hasConflict($excludeId)) {
-            throw new ApiException(__('api.reservation_conflict'));
-        }
-
-        if (!$reservation->tableIsAvailable()) {
-            throw new ApiException(__('api.table_unavailable'));
-        }
-
-        if (!$reservation->tableHasCapacity()) {
-            throw new ApiException(__('api.insufficient_table_capacity'));
-        }

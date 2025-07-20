@@ -7,5 +7,7 @@ return [
     'ingredient' => 'Ingredient',
     'product' => 'Product',
     'table' => 'Table',
-    'paymenttype' => 'Payment type'
+    'paymenttype' => 'Payment type',
+    'delivery' => 'Delivery',
+    'order' => 'Order',
 ];
