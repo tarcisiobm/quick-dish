@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,123 +16,154 @@ abstract class ApiController extends Controller
     protected array $with = [];
     protected ?string $formRequest = null;
 
+    protected array $successTemplates = [
+        'created' => ['message' => 'api.created', 'status' => 201],
+        'updated' => ['message' => 'api.updated', 'status' => 200],
+        'deleted' => ['message' => 'api.deleted', 'status' => 200],
+    ];
+
+    protected array $errorTemplates = [
+        'not_found' => ['message' => 'api.not_found', 'status' => 404],
+        'validation' => ['message' => 'api.validation_error', 'status' => 422],
+    ];
+
     public function index(): JsonResponse
     {
         $query = $this->model::query();
-
         if ($this->with) {
             $query->with($this->with);
         }
+        return $this->successResponse($query->get());
+    }
 
-        return response()->json([
-            "status" => "success",
-            "data" => $query->get()
-        ]);
+    public function show(string $id): JsonResponse
+    {
+        $resource = $this->findResource($id);
+        if (!$resource) {
+            return $this->errorResponse('not_found');
+        }
+        return $this->successResponse($resource);
     }
 
     public function store(Request $request): JsonResponse
     {
         try {
-            $data = $this->validateRequest($request);
-            $resource = $this->model::create($data);
+            $validatedData = $this->validateRequest($request);
+            $resource = $this->model::create($validatedData);
             $this->saveRelations($resource, $request);
-
-            return response()->json([
-                "status" => "success",
-                "message" => __('api.created', ['name' => $this->getTranslatedName()]),
-                "data" => $this->loadWithRelations($resource)
-            ], 201);
+            return $this->successResponse('created', $resource);
         } catch (ValidationException $e) {
-            return response()->json([
-                'message' => __('api.validation_error'),
-                'errors' => $e->errors()
-            ], $e->status);
+            return $this->errorResponse('validation', $e->errors());
         }
-    }
-
-    public function show(string $id): JsonResponse
-    {
-        $query = $this->model::query();
-
-        if ($this->with) {
-            $query->with($this->with);
-        }
-
-        $resource = $query->find($id);
-
-        if (!$resource) {
-            return response()->json([
-                "status" => "error",
-                "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
-            ], 404);
-        }
-
-        return response()->json([
-            "status" => "success",
-            "data" => $resource
-        ]);
     }
 
     public function update(Request $request, string $id): JsonResponse
     {
-        $resource = $this->model::find($id);
-
-        if (!$resource) {
-            return response()->json([
-                "status" => "error",
-                "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
-            ], 404);
-        }
-
         try {
-            $data = $this->validateRequest($request);
-            $resource->update($data);
+            $resource = $this->findResource($id);
+            if (!$resource) {
+                return $this->errorResponse('not_found');
+            }
+            $validatedData = $this->validateRequest($request);
+            $resource->update($validatedData);
             $this->saveRelations($resource, $request);
-
-            return response()->json([
-                "status" => "success",
-                "data" => $this->loadWithRelations($resource),
-                "message" => __('api.updated', ['name' => $this->getTranslatedName()]),
-            ]);
+            return $this->successResponse('updated', $resource);
         } catch (ValidationException $e) {
-            return response()->json([
-                'message' => __('api.validation_error'),
-                'errors' => $e->errors()
-            ], $e->status);
+            return $this->errorResponse('validation', $e->errors());
         }
     }
 
     public function destroy(string $id): JsonResponse
     {
-        $resource = $this->model::find($id);
-
+        $resource = $this->findResource($id);
         if (!$resource) {
-            return response()->json([
-                "status" => "error",
-                "message" => __('api.not_found', ['name' => $this->getTranslatedName()]),
-            ], 404);
+            return $this->errorResponse('not_found');
+        }
+        $resource->delete();
+        return $this->successResponse('deleted');
+    }
+
+
+    /**
+     * Hooks and utility methods
+     *
+     */
+
+    protected function successResponse($message = null, $data = null, int $status = 200): JsonResponse
+    {
+        if (is_string($message) && isset($this->successTemplates[$message])) {
+            return $this->buildSuccessFromTemplate($message, $data);
         }
 
-        $resource->delete();
+        return $this->buildSuccessResponse($message, $data, $status);
+    }
 
-        return response()->json([
-            "status" => "success",
-            "message" => __('api.deleted', ['name' => $this->getTranslatedName()]),
-        ], 204);
+    protected function errorResponse($message, $errors = null, ?int $status = null): JsonResponse
+    {
+        if (is_string($message) && isset($this->errorTemplates[$message])) {
+            return $this->buildErrorFromTemplate($message, $errors);
+        }
+
+        return $this->buildErrorResponse($message, $errors, $status ?? 400);
+    }
+
+    private function buildSuccessFromTemplate(string $template, $resource): JsonResponse
+    {
+        $config = $this->successTemplates[$template];
+        $message = __($config['message'], ['name' => $this->getTranslatedName()]);
+        $data = $this->loadWithRelations($resource);
+
+        return $this->buildSuccessResponse($message, $data, $config['status']);
+    }
+
+    private function buildErrorFromTemplate(string $template, $errors): JsonResponse
+    {
+        $config = $this->errorTemplates[$template];
+        $message = __($config['message'], ['name' => $this->getTranslatedName()]);
+
+        return $this->buildErrorResponse($message, $errors, $config['status']);
+    }
+
+    private function buildSuccessResponse($message, $data, int $status): JsonResponse
+    {
+        $response = ['status' => 'success'];
+
+        if ($message) {
+            $response['message'] = $message;
+        }
+
+        if ($data !== null) {
+            $response['data'] = $data;
+        }
+
+        return response()->json($response, $status);
+    }
+
+    private function buildErrorResponse($message, $errors, int $status): JsonResponse
+    {
+        $response = [
+            'status' => 'error',
+            'message' => $message
+        ];
+
+        if ($errors) {
+            $response['errors'] = $errors;
+        }
+
+        return response()->json($response, $status);
     }
 
     protected function validateRequest(Request $request): array
     {
-        if ($this->formRequest) {
-            /** @var FormRequest $formRequest */
-            $formRequest = app($this->formRequest);
-            return $formRequest->validated();
+        if (!$this->formRequest) {
+            return $request->except($this->getRelationFields());
         }
-
-        return $request->except($this->getRelationFields());
+        /** @var FormRequest $formRequest */
+        $formRequest = app($this->formRequest);
+        return $formRequest->validated();
     }
 
-    protected function saveRelations($model, Request $request): void
+    protected function saveRelations(Model $model, Request $request): void
     {
         foreach ($this->relations as $relationName => $relationSetup) {
             if (!$request->has($relationName)) {
@@ -166,6 +198,15 @@ abstract class ApiController extends Controller
         return $result;
     }
 
+    protected function findResource(string $id): ?Model
+    {
+        $query = $this->model::query();
+        if ($this->with) {
+            $query->with($this->with);
+        }
+        return $query->find($id);
+    }
+
     protected function getRelationFields(): array
     {
         return array_keys($this->relations);
@@ -173,11 +214,11 @@ abstract class ApiController extends Controller
 
     protected function loadWithRelations($resource)
     {
-        if ($this->with) {
+        if ($this->with && $resource) {
             return $resource->load($this->with);
         }
 
-        return $resource->fresh();
+        return $resource;
     }
 
     protected function getTranslatedName(): string
