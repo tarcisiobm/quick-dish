@@ -21,14 +21,14 @@ class TableRequest extends FormRequest
      */
     public function rules(): array
     {
-        return match($this->method()){
+        return match ($this->method()) {
             'PUT' => [
-                'number' => 'sometimes|numeric|min:0',
+                'number' => 'sometimes|numeric|min:0|unique:tables,number',
                 'capacity' => 'sometimes|numeric|min:0',
                 'status' => 'sometimes|boolean',
             ],
             default => [
-                'number' => 'required|numeric|min:0',
+                'number' => 'required|numeric|min:0|unique:tables,number',
                 'capacity' => 'required|numeric|min:0',
                 'status' => 'sometimes|boolean',
             ]
