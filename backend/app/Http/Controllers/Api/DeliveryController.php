@@ -11,4 +11,5 @@ class DeliveryController extends ApiController
     protected string $model = Delivery::class;
     protected string $name = 'Delivery';
     protected ?string $formRequest = DeliveryRequest::class;
+    protected array $with = ['address'];
 }

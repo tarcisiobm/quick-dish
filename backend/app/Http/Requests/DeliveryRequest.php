@@ -23,12 +23,12 @@ class DeliveryRequest extends FormRequest
     {
         return match ($this->method()) {
             'PUT' => [
-                'address_id' => 'required|exists:addresses,id',
-                'price' => 'required|nullable|numeric|min:0'
+                'address_id' => 'sometimes|required|integer|exists:addresses,id',
+                'price' => 'sometimes|nullable|numeric|min:0',
             ],
             default => [
-                'address_id' => 'sometimes|exists:addresses,id',
-                'price' => 'sometimes|nullable|numeric|min:0'
+                'address_id' => 'required|integer|exists:addresses,id',
+                'price' => 'nullable|numeric|min:0',
             ]
         };
     }
