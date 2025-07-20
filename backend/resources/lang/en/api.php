@@ -11,4 +11,7 @@ return [
     'server_error' => 'Internal server error.',
     'success' => 'Operation completed successfully.',
     'failed' => 'Operation failed.',
+    'reservation_conflict' => 'There is already a reservation for this time slot.',
+    'table_unavailable' => 'This table is currently unavailable.',
+    'insufficient_table_capacity' => 'The table does not have enough capacity for the number of guests.',
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ApiException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
@@ -49,11 +50,15 @@ abstract class ApiController extends Controller
     {
         try {
             $validatedData = $this->validateRequest($request);
+            $this->beforeStore($validatedData, $request);
             $resource = $this->model::create($validatedData);
             $this->saveRelations($resource, $request);
+            $this->afterStore($resource, $request);
             return $this->successResponse('created', $resource);
         } catch (ValidationException $e) {
             return $this->errorResponse('validation', $e->errors());
+        } catch (ApiException $e) {
+            return $this->errorResponse($e->getMessage(), $e->getData(), $e->getStatusCode());
         }
     }
 
@@ -65,36 +70,68 @@ abstract class ApiController extends Controller
                 return $this->errorResponse('not_found');
             }
             $validatedData = $this->validateRequest($request);
+            $this->beforeUpdate($validatedData, $resource, $request);
             $resource->update($validatedData);
             $this->saveRelations($resource, $request);
+            $this->afterUpdate($resource, $request);
             return $this->successResponse('updated', $resource);
         } catch (ValidationException $e) {
             return $this->errorResponse('validation', $e->errors());
+        } catch (ApiException $e) {
+            return $this->errorResponse($e->getMessage(), $e->getData(), $e->getStatusCode());
         }
     }
 
     public function destroy(string $id): JsonResponse
     {
-        $resource = $this->findResource($id);
-        if (!$resource) {
-            return $this->errorResponse('not_found');
+        try {
+            $resource = $this->findResource($id);
+            if (!$resource) {
+                return $this->errorResponse('not_found');
+            }
+            $this->beforeDestroy($resource);
+            $resource->delete();
+            $this->afterDestroy($resource);
+            return $this->successResponse('deleted');
+        } catch (ApiException $e) {
+            return $this->errorResponse($e->getMessage(), $e->getData(), $e->getStatusCode());
         }
-        $resource->delete();
-        return $this->successResponse('deleted');
     }
-
 
     /**
      * Hooks and utility methods
      *
      */
 
+    protected function beforeStore(array $validatedData, Request $request): void
+    {
+    }
+
+    protected function afterStore(Model $resource, Request $request): void
+    {
+    }
+
+    protected function beforeUpdate(array $validatedData, Model $resource, Request $request): void
+    {
+    }
+
+    protected function afterUpdate(Model $resource, Request $request): void
+    {
+    }
+
+    protected function beforeDestroy(Model $resource): void
+    {
+    }
+
+    protected function afterDestroy(Model $resource): void
+    {
+    }
+
     protected function successResponse($message = null, $data = null, int $status = 200): JsonResponse
     {
         if (is_string($message) && isset($this->successTemplates[$message])) {
             return $this->buildSuccessFromTemplate($message, $data);
         }
-
         return $this->buildSuccessResponse($message, $data, $status);
     }
 
@@ -103,7 +140,6 @@ abstract class ApiController extends Controller
         if (is_string($message) && isset($this->errorTemplates[$message])) {
             return $this->buildErrorFromTemplate($message, $errors);
         }
-
         return $this->buildErrorResponse($message, $errors, $status ?? 400);
     }
 
@@ -112,7 +148,6 @@ abstract class ApiController extends Controller
         $config = $this->successTemplates[$template];
         $message = __($config['message'], ['name' => $this->getTranslatedName()]);
         $data = $this->loadWithRelations($resource);
-
         return $this->buildSuccessResponse($message, $data, $config['status']);
     }
 
@@ -120,22 +155,18 @@ abstract class ApiController extends Controller
     {
         $config = $this->errorTemplates[$template];
         $message = __($config['message'], ['name' => $this->getTranslatedName()]);
-
         return $this->buildErrorResponse($message, $errors, $config['status']);
     }
 
     private function buildSuccessResponse($message, $data, int $status): JsonResponse
     {
         $response = ['status' => 'success'];
-
         if ($message) {
             $response['message'] = $message;
         }
-
         if ($data !== null) {
             $response['data'] = $data;
         }
-
         return response()->json($response, $status);
     }
 
@@ -145,11 +176,9 @@ abstract class ApiController extends Controller
             'status' => 'error',
             'message' => $message
         ];
-
         if ($errors) {
             $response['errors'] = $errors;
         }
-
         return response()->json($response, $status);
     }
 
@@ -169,12 +198,9 @@ abstract class ApiController extends Controller
             if (!$request->has($relationName)) {
                 continue;
             }
-
             $saveMethod = $relationSetup['method'] ?? 'sync';
             $requestItems = $request->input($relationName);
-
             $pivotData = $this->buildRelationData($requestItems, $relationSetup);
-
             $model->$relationName()->$saveMethod($pivotData);
         }
     }
@@ -183,18 +209,14 @@ abstract class ApiController extends Controller
     {
         $fields = $setup['fields'] ?? [];
         $result = [];
-
         foreach ($items as $item) {
             $id = $item['id'];
             $pivotValues = [];
-
             foreach ($fields as $field) {
                 $pivotValues[$field] = $item[$field] ?? null;
             }
-
             $result[$id] = $pivotValues;
         }
-
         return $result;
     }
 
@@ -217,7 +239,6 @@ abstract class ApiController extends Controller
         if ($this->with && $resource) {
             return $resource->load($this->with);
         }
-
         return $resource;
     }
 
@@ -225,7 +246,6 @@ abstract class ApiController extends Controller
     {
         $key = 'entities.' . strtolower($this->name);
         $translated = __($key);
-
         return $translated !== $key ? $translated : $this->name;
     }
 }

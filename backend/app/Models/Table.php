@@ -14,4 +14,8 @@ class Table extends Model
         'capacity',
         'status',
     ];
+
+    protected $casts = [
+        'status' => 'boolean',
+    ];
 }
