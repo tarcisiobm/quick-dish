@@ -1,395 +1,130 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { PhCalendar, PhClock, PhUsers, PhCheck } from '@phosphor-icons/vue';
-import axios from 'axios';
+import { ref, reactive } from 'vue';
+import api from '@/plugins/axios';
+import { useErrorStore } from '@/stores/error';
+import { useSnackbarStore } from '@/stores/snackbar';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
-const authStore = useAuthStore();
+interface Table {
+  id: number;
+  number: number;
+  capacity: number;
+}
 
-// Estado do formulário
-const reservationForm = reactive({
-  date: '',
-  time: '',
-  guests: 2,
-  specialRequests: ''
+interface ReservationForm {
+  guests_count: number | null;
+  reservation_date: string;
+  start_time: string;
+  end_time: string;
+  table_id: number | null;
+  notes: string;
+}
+
+const errorStore = useErrorStore();
+const snackbarStore = useSnackbarStore();
+const authStore = useAuthStore();
+const router = useRouter();
+
+const form = reactive<ReservationForm>({
+  guests_count: null,
+  reservation_date: new Date().toISOString().split('T')[0],
+  start_time: '19:00',
+  end_time: '21:00',
+  table_id: null,
+  notes: ''
 });
 
-// Estado da interface
-const isLoading = ref(false);
-const showSuccess = ref(false);
-const user = ref(null);
+const availableTables = ref<Table[]>([]);
+const loadingTables = ref(false);
+const submitting = ref(false);
 
-// Opções de horários disponíveis
-const timeSlots = [
-  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'
-];
-
-// Opções de número de pessoas
-const guestOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// Buscar dados do usuário autenticado (desativado temporariamente)
-// const fetchUserData = async () => {
-//   try {
-//     const token = localStorage.getItem('auth_token');
-//     if (token) {
-//       const response = await axios.get('http://localhost:8000/api/auth/me', {
-//         headers: {
-//           'Authorization': `Bearer ${token}`
-//         }
-//       });
-//       user.value = response.data;
-//     } else {
-//       // Para testes sem autenticação, vamos simular um usuário
-//       user.value = {
-//         name: 'Usuário de Teste',
-//         email: 'teste@quickdish.com',
-//         phone: '(11) 99999-9999'
-//       };
-//     }
-//   } catch (error) {
-//     console.error('Erro ao buscar dados do usuário:', error);
-//     // Para testes sem autenticação, vamos simular um usuário
-//     user.value = {
-//       name: 'Usuário de Teste',
-//       email: 'teste@quickdish.com',
-//       phone: '(11) 99999-9999'
-//     };
-//   }
-// };
-
-// Função para submeter a reserva (sem autenticação)
-const submitReservation = async () => {
-  isLoading.value = true;
-  showSuccess.value = false; // Resetar mensagem de sucesso
-
+async function checkAvailability() {
+  loadingTables.value = true;
+  form.table_id = null;
+  availableTables.value = [];
   try {
-    // Removido a verificação de token para testes sem autenticação
-    const response = await axios.post('http://localhost:8000/api/reservations', {
-      reservation_date: reservationForm.date,
-      reservation_time: reservationForm.time,
-      number_of_guests: reservationForm.guests,
-      special_requests: reservationForm.specialRequests
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-        // Removido o header Authorization para testes sem autenticação
-      }
-    });
-
-    console.log('Reserva criada com sucesso:', response.data);
-    showSuccess.value = true;
-    
-    // Limpar formulário após sucesso
-    Object.assign(reservationForm, {
-      date: '',
-      time: '',
-      guests: 2,
-      specialRequests: ''
-    });
-
-    // Opcional: esconder mensagem de sucesso após alguns segundos
-    setTimeout(() => {
-      showSuccess.value = false;
-    }, 5000);
-
-  } catch (error: any) {
-    console.error('Erro ao criar reserva:', error.response ? error.response.data : error.message);
-    // Aqui você pode adicionar uma notificação de erro mais detalhada para o usuário
-    alert('Erro ao criar reserva: ' + (error.response && error.response.data.message ? error.response.data.message : 'Verifique o console para mais detalhes.'));
+    const params = {
+      guests_count: form.guests_count,
+      reservation_date: form.reservation_date,
+      start_time: form.start_time,
+      end_time: form.end_time
+    };
+    const response = await api.get('/available-tables', { params });
+    availableTables.value = response.data.data;
+    if (availableTables.value.length === 0) {
+      snackbarStore.warning('Nenhuma mesa disponível para os critérios selecionados.');
+    }
+  } catch (error) {
+    errorStore.handle(error);
   } finally {
-    isLoading.value = false;
+    loadingTables.value = false;
   }
-};
+}
 
-// Validação básica
-const isFormValid = () => {
-  return reservationForm.date && reservationForm.time && reservationForm.guests > 0;
-};
-
-// onMounted(() => {
-//   fetchUserData();
-// });
+async function submitReservation() {
+  if (!form.table_id) {
+    snackbarStore.error('Por favor, selecione uma mesa disponível.');
+    return;
+  }
+  submitting.value = true;
+  try {
+    const payload = { ...form, user_id: authStore.user?.id };
+    const response = await api.post('/reservations', payload);
+    snackbarStore.success(response.data.message || 'Reserva realizada com sucesso!');
+    router.push('/my-account');
+  } catch (error) {
+    errorStore.handle(error);
+  } finally {
+    submitting.value = false;
+  }
+}
 </script>
 
 <template>
-  <div class="reservations-container">
-    <!-- Header -->
-    <div class="page-header">
-      <h1 class="page-title color-title">Reservas</h1>
-      <p class="page-subtitle color-subtitle">
-        Reserve sua mesa no QuickDish e desfrute de uma experiência gastronômica única
-      </p>
-    </div>
+  <v-container>
+    <v-row justify="center">
+      <v-col cols="12" md="8" lg="6">
+        <v-card>
+          <v-card-title class="title text-h5 pa-4">Faça sua Reserva</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <p class="text color-subtitle mb-6">Preencha os dados abaixo para encontrar uma mesa.</p>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="form.guests_count" label="Número de Pessoas" type="number" min="1" prepend-inner-icon="mdi-account-group"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="form.reservation_date" label="Data da Reserva" type="date"></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="form.start_time" label="Horário de Chegada" type="time"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="form.end_time" label="Horário de Saída" type="time"></v-text-field>
+              </v-col>
+            </v-row>
+            <v-btn block @click="checkAvailability" :loading="loadingTables" class="my-4"> Verificar Disponibilidade </v-btn>
 
-    <!-- Success Message -->
-    <v-alert
-      v-if="showSuccess"
-      type="success"
-      variant="tonal"
-      class="mb-6"
-      :icon="PhCheck"
-    >
-      <template v-slot:title>
-        Reserva confirmada!
-      </template>
-      Sua reserva foi realizada com sucesso. Você receberá um e-mail de confirmação em breve.
-    </v-alert>
-
-    <!-- Reservation Form -->
-    <v-card class="reservation-card" elevation="2">
-      <v-card-title class="card-header">
-        <PhCalendar size="24" class="color-primary mr-3" />
-        <span class="color-title">Nova Reserva</span>
-      </v-card-title>
-
-      <v-card-text class="card-content">
-        <v-form @submit.prevent="submitReservation">
-          <v-row>
-            <!-- Informações do Usuário (somente leitura) -->
-            <v-col cols="12" v-if="authStore.user">
-              <h3 class="section-title color-subtitle mb-4">Dados da Reserva</h3>
-              <div class="user-info mb-4">
-                <p><strong>Nome:</strong> {{ authStore.user?.name }}</p>
-                <p><strong>E-mail:</strong> {{ authStore.user?.email }}</p>
-                <p v-if="authStore.user?.phone"><strong>Telefone:</strong> {{ authStore.user?.phone }}</p>
-              </div>
-            </v-col>
-
-            <!-- Detalhes da Reserva -->
-            <v-col cols="12">
-              <h3 class="section-title color-subtitle mb-4 mt-4">Detalhes da Reserva</h3>
-            </v-col>
-
-            <v-col cols="12" md="4">
-              <v-text-field
-                v-model="reservationForm.date"
-                label="Data"
-                type="date"
-                :prepend-inner-icon="PhCalendar"
-                variant="outlined"
-                required
-                :min="new Date().toISOString().split('T')[0]"
-                :rules="[v => !!v || 'Data é obrigatória']"
-              />
-            </v-col>
-
-            <v-col cols="12" md="4">
-              <v-select
-                v-model="reservationForm.time"
-                label="Horário"
-                :items="timeSlots"
-                :prepend-inner-icon="PhClock"
-                variant="outlined"
-                required
-                :rules="[v => !!v || 'Horário é obrigatória']"
-              />
-            </v-col>
-
-            <v-col cols="12" md="4">
-              <v-select
-                v-model="reservationForm.guests"
-                label="Número de pessoas"
-                :items="guestOptions"
-                :prepend-inner-icon="PhUsers"
-                variant="outlined"
-                required
-              />
-            </v-col>
-
-            <!-- Observações -->
-            <v-col cols="12">
-              <v-textarea
-                v-model="reservationForm.specialRequests"
-                label="Observações especiais (opcional)"
-                placeholder="Aniversário, restrições alimentares, preferências de mesa..."
-                variant="outlined"
-                rows="3"
-                no-resize
-              />
-            </v-col>
-
-            <!-- Botões -->
-            <v-col cols="12" class="d-flex justify-end ga-3">
-              <v-btn
-                variant="outlined"
-                color="text"
-                @click="Object.assign(reservationForm, {
-                  date: '', time: '', guests: 2, specialRequests: ''
-                })"
-              >
-                Limpar
-              </v-btn>
-              
-              <v-btn
-                type="submit"
-                :loading="isLoading"
-                :disabled="!isFormValid()"
-                class="reservation-btn"
-              >
-                <template v-slot:prepend>
-                  <PhCheck size="20" />
+            <div v-if="availableTables.length > 0">
+              <v-divider class="my-4"></v-divider>
+              <p class="subtitle mb-2">Mesas disponíveis encontradas!</p>
+              <v-select v-model="form.table_id" :items="availableTables" item-title="number" item-value="id" label="Selecione sua mesa">
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props" :title="`Mesa ${item.raw.number}`" :subtitle="`Capacidade: ${item.raw.capacity} pessoas`"></v-list-item>
                 </template>
-                Confirmar Reserva
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-card-text>
-    </v-card>
-
-    <!-- Informações Adicionais -->
-    <v-card class="info-card mt-6" elevation="1">
-      <v-card-text>
-        <h3 class="color-subtitle mb-3">Informações Importantes</h3>
-        <v-list class="info-list">
-          <v-list-item>
-            <template v-slot:prepend>
-              <v-icon color="primary" size="small">mdi-clock-outline</v-icon>
-            </template>
-            <v-list-item-title class="color-text">
-              Horário de funcionamento: 18h às 23h
-            </v-list-item-title>
-          </v-list-item>
-          
-          <v-list-item>
-            <template v-slot:prepend>
-              <v-icon color="primary" size="small">mdi-calendar-check</v-icon>
-            </template>
-            <v-list-item-title class="color-text">
-              Reservas podem ser feitas com até 30 dias de antecedência
-            </v-list-item-title>
-          </v-list-item>
-          
-          <v-list-item>
-            <template v-slot:prepend>
-              <v-icon color="primary" size="small">mdi-phone</v-icon>
-            </template>
-            <v-list-item-title class="color-text">
-              Para grupos acima de 10 pessoas, entre em contato: (11) 99999-9999
-            </v-list-item-title>
-          </v-list-item>
-          
-          <v-list-item>
-            <template v-slot:prepend>
-              <v-icon color="primary" size="small">mdi-cancel</v-icon>
-            </template>
-            <v-list-item-title class="color-text">
-              Cancelamentos devem ser feitos com pelo menos 2 horas de antecedência
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-card-text>
-    </v-card>
-  </div>
+              </v-select>
+              <v-textarea v-model="form.notes" label="Observações (opcional)" class="mt-4"></v-textarea>
+            </div>
+          </v-card-text>
+          <v-card-actions class="pa-4">
+            <v-spacer></v-spacer>
+            <v-btn size="large" @click="submitReservation" :disabled="!form.table_id" :loading="submitting"> Confirmar Reserva </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
-
-<style lang="scss" scoped>
-.reservations-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 32px;
-  text-align: center;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.user-info {
-  background-color: rgb(var(--v-theme-background));
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid rgb(var(--v-theme-border));
-  
-  p {
-    margin: 4px 0;
-    color: rgb(var(--v-theme-text));
-  }
-}
-
-.reservation-card {
-  background-color: rgb(var(--v-theme-alt_background));
-  border: 1px solid rgb(var(--v-theme-border));
-}
-
-.card-header {
-  background-color: rgb(var(--v-theme-background));
-  border-bottom: 1px solid rgb(var(--v-theme-border));
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.card-content {
-  padding: 32px 24px;
-}
-
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  position: relative;
-  padding-left: 12px;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 20px;
-    background-color: rgb(var(--v-theme-primary));
-    border-radius: 2px;
-  }
-}
-
-.reservation-btn {
-  min-width: 180px;
-  height: 48px;
-  font-weight: 600;
-}
-
-.info-card {
-  background-color: rgb(var(--v-theme-alt_background));
-  border: 1px solid rgb(var(--v-theme-border));
-}
-
-.info-list {
-  background-color: transparent;
-  
-  .v-list-item {
-    padding-left: 0;
-    min-height: 40px;
-  }
-}
-
-// Responsividade
-@media (max-width: 768px) {
-  .reservations-container {
-    padding: 16px;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .card-content {
-    padding: 24px 16px;
-  }
-}
-</style>
-

@@ -28,13 +28,13 @@ abstract class ApiController extends Controller
         'validation' => ['message' => 'api.validation_error', 'status' => 422],
     ];
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $query = $this->model::query();
         if ($this->with) {
             $query->with($this->with);
         }
-        return $this->successResponse($query->get());
+        return $this->successResponse(null, $query->get());
     }
 
     public function show(string $id): JsonResponse
@@ -43,7 +43,7 @@ abstract class ApiController extends Controller
         if (!$resource) {
             return $this->errorResponse('not_found');
         }
-        return $this->successResponse($resource);
+        return $this->successResponse(null, $resource);
     }
 
     public function store(Request $request): JsonResponse
@@ -97,11 +97,6 @@ abstract class ApiController extends Controller
             return $this->errorResponse($e->getMessage(), $e->getData(), $e->getStatusCode());
         }
     }
-
-    /**
-     * Hooks and utility methods
-     *
-     */
 
     protected function beforeStore(array $validatedData, Request $request): void
     {
@@ -187,7 +182,6 @@ abstract class ApiController extends Controller
         if (!$this->formRequest) {
             return $request->except($this->getRelationFields());
         }
-        /** @var FormRequest $formRequest */
         $formRequest = app($this->formRequest);
         return $formRequest->validated();
     }

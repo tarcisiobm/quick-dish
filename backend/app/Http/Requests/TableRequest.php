@@ -21,9 +21,11 @@ class TableRequest extends FormRequest
      */
     public function rules(): array
     {
+        $tableId = $this->route('table');
+
         return match ($this->method()) {
             'PUT' => [
-                'number' => 'sometimes|numeric|min:0|unique:tables,number',
+                'number' => 'sometimes|numeric|min:0|unique:tables,number,' . $tableId,
                 'capacity' => 'sometimes|numeric|min:0',
                 'status' => 'sometimes|boolean',
             ],

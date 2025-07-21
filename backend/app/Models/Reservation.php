@@ -24,7 +24,7 @@ class Reservation extends Model
     ];
 
     protected $casts = [
-        'reservation_date' => 'date',
+        'reservation_date' => 'date:Y-m-d',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
         'status' => 'boolean',

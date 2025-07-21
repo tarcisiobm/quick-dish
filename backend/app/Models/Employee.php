@@ -18,7 +18,14 @@ class Employee extends Model
         'work_schedule',
     ];
 
-    public function user(){
+    protected $casts = [
+        'hire_date' => 'date:Y-m-d',
+        'termination_date' => 'date:Y-m-d',
+    ];
+
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

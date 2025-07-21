@@ -99,5 +99,7 @@ return [
         'items.*.additionals.*.ingredient_id' => 'additional ingredient',
         'items.*.additionals.*.quantity' => 'additional quantity',
         'coupon_code' => 'coupon code',
+        'rating' => 'rating',
+        'comment' => 'comment',
     ],
 ];

@@ -10,4 +10,6 @@ return [
     'paymenttype' => 'Tipo de pagamento',
     'delivery' => 'Entrega',
     'order' => 'Pedido',
+    'coupon' => 'Cupom',
+    'review' => 'Avaliação'
 ];

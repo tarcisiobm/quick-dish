@@ -17,6 +17,7 @@ export interface AuthData {
   deleted_at: string | null;
   updated_at: string;
   created_at: string;
+  is_employee?: boolean;
 }
 
 export interface RecoverData {
@@ -44,10 +45,11 @@ export const useAuthStore = defineStore('auth', () => {
   const errorStore = useErrorStore();
 
   const user = ref<AuthData | null>(null);
+  const isLoading = ref(true);
   const recoverData = ref<RecoverData | null>(null);
   const authWindow = ref<Window | null>(null);
 
-  const isAuthenticated = computed(() => Boolean(user.value));
+  const isAuthenticated = computed(() => !!user.value);
 
   const resetState = (): void => {
     user.value = null;
@@ -59,19 +61,24 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const getUserSession = async (): Promise<void> => {
+    if (user.value) return;
     try {
       const response = await api.get('/auth/user');
       setUser(response.data);
     } catch (error) {
       resetState();
+      throw error;
     }
   };
 
   const initializeAuth = async (): Promise<void> => {
+    isLoading.value = true;
     try {
       await getUserSession();
     } catch (error) {
-      resetState();
+      //
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -191,6 +198,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
+    isLoading,
     isAuthenticated,
     resetState,
     initializeAuth,
@@ -201,6 +209,7 @@ export const useAuthStore = defineStore('auth', () => {
     recoverPassword,
     validateToken,
     setNewPassword,
-    handleAuthMessage
+    handleAuthMessage,
+    getUserSession
   };
 });

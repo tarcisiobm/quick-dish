@@ -57,6 +57,14 @@ class SocialAuthService
                 ]
             );
 
+            if (!$user->status) {
+                return [
+                    'success' => false,
+                    'error' => __('auth.inactive'),
+                    'status' => 403,
+                ];
+            }
+
             $user->tokens()->delete();
             $token = $user->createToken('auth-token', ['*'], now()->addDays(7))->plainTextToken;
 

@@ -3,10 +3,12 @@ import AppBar from '@/components/AppBar.vue';
 import SideBar from '@/components/SideBar.vue';
 import { useSidebarStore } from '@/stores/sidebar';
 const sidebarStore = useSidebarStore();
+import CartDrawer from '@/components/CartDrawer.vue';
 </script>
 
 <template>
   <v-app>
+    <CartDrawer />
     <AppBar />
     <v-main :class="sidebarStore.isPinned ? 'main-view pined' : 'main-view default'">
       <RouterView />

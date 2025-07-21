@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useSidebarStore } from '@/stores/sidebar';
 import { useI18n } from 'vue-i18n';
-import { PhClipboardText, PhCalendarDots, PhLayout, PhBell, PhGear, PhQuestion, PhSidebarSimple, PhMoon, PhSun } from '@phosphor-icons/vue';
+import { PhClipboardText, PhCalendarDots, PhLayout, PhBell, PhGear, PhQuestion, PhSidebarSimple, PhMoon, PhSun, PhReceipt } from '@phosphor-icons/vue';
 import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/auth';
+import { useCatalogStore } from '@/stores/catalog';
+
 type PhosphorIcon = typeof PhClipboardText;
 
 const sidebar = useSidebarStore();
 const theme = useThemeStore();
 const { t } = useI18n();
+const auth = useAuthStore();
+const catalogStore = useCatalogStore();
 
 const searchValue = ref('');
 const openMenu = ref<string[]>([]);
@@ -40,38 +45,47 @@ interface SearchResult {
   parent?: string;
 }
 
-const menuItems = computed<MenuItem[]>(() => [
-  {
-    title: 'Menu',
-    icon: PhClipboardText,
-    children: [
-      { title: 'Pizzas', to: '/menu/pizzas' },
-      { title: 'Salads', to: '/menu/salads' }
-    ]
-  },
-  {
-    title: 'Reservations',
-    icon: PhCalendarDots,
-    to: '/reservations'
-  },
-  { title: 'Dashboard', icon: PhLayout, to: '/dashboard' },
-  { title: 'Notifications', icon: PhBell, to: '/notifications' },
-  { title: 'Settings', icon: PhGear, to: '/settings' },
-  { title: 'Help', icon: PhQuestion, to: '/help' },
-  {
+const menuItems = computed<MenuItem[]>(() => {
+  const categoryChildren = catalogStore.categoryList.map((category) => ({
+    title: category.name,
+    to: `/menu/category/${category.id}`
+  }));
+
+  const items: MenuItem[] = [
+    {
+      title: 'Menu',
+      icon: PhClipboardText,
+      children: [{ title: 'Todos os Produtos', to: '/menu' }, ...categoryChildren]
+    },
+    {
+      title: 'Reservations',
+      icon: PhCalendarDots,
+      to: '/reservations'
+    }
+  ];
+
+  if (auth.isAuthenticated) {
+    items.push({ title: 'Minha Conta', icon: PhReceipt, to: '/my-account' });
+  }
+
+  if (auth.user?.is_employee) {
+    items.push({ title: 'Dashboard', icon: PhLayout, to: '/admin' });
+  }
+
+  items.push({
     title: theme.isDark ? t('theme.enableLightMode') : t('theme.enableDarkMode'),
     icon: theme.isDark ? PhSun : PhMoon,
     action: theme.toggleTheme
-  }
-]);
+  });
+
+  return items;
+});
 
 const searchResults = computed<SearchResult[]>(() => {
   if (!searchValue.value.trim()) return [];
-
   const search = searchValue.value.toLowerCase();
   return menuItems.value.flatMap((item) => {
     const results: SearchResult[] = [];
-
     if ((item.to || item.action) && item.title.toLowerCase().includes(search)) {
       results.push({
         title: item.title,
@@ -80,7 +94,6 @@ const searchResults = computed<SearchResult[]>(() => {
         icon: item.icon
       });
     }
-
     if (item.children) {
       const parentMatches = item.title.toLowerCase().includes(search);
       results.push(
@@ -94,9 +107,16 @@ const searchResults = computed<SearchResult[]>(() => {
           }))
       );
     }
-
     return results;
   });
+});
+
+onMounted(() => {
+  catalogStore.fetchCategories();
+
+  if (!sidebar.isExpanded) {
+    openMenu.value = [];
+  }
 });
 
 watch(
@@ -106,7 +126,6 @@ watch(
       openMenu.value = lastOpenMenu.value;
       return;
     }
-
     lastOpenMenu.value = [...openMenu.value];
     openMenu.value = [];
     searchValue.value = '';
@@ -120,7 +139,6 @@ watch(
       <v-text-field v-if="sidebar.isExpanded" v-model="searchValue" color="text" variant="outlined" prepend-inner-icon="mdi-magnify" :placeholder="t('fields.search')" density="compact" hide-details />
       <v-icon v-else class="search-icon">mdi-magnify</v-icon>
     </div>
-
     <div class="sidebar-menu d-flex flex-column" :class="{ 'justify-center': !searchValue.trim() }">
       <v-list v-model:opened="openMenu" nav density="compact" class="pa-0" style="background-color: transparent; overflow: hidden">
         <template v-if="searchValue.trim()">
@@ -132,7 +150,6 @@ watch(
             <v-list-item-title class="text-center color-text">{{ t('fields.noResults') }}</v-list-item-title>
           </v-list-item>
         </template>
-
         <template v-else>
           <template v-for="item in menuItems" :key="item.title">
             <v-list-group v-if="item.children" :value="item.title">
@@ -141,13 +158,11 @@ watch(
               </template>
               <v-list-item v-for="sub in item.children" :key="sub.title" :to="sub.to" :title="sub.title" class="submenu-item menu-list-subitem" />
             </v-list-group>
-
             <v-list-item class="pa-0 menu-list-item" v-else :prepend-icon="item.icon" :title="item.title" :to="item.to" @click="item.action" />
           </template>
         </template>
       </v-list>
     </div>
-
     <div class="sidebar-footer" :class="{ 'align-self-end': sidebar.isExpanded }">
       <v-btn color="text" :icon="PhSidebarSimple" variant="text" height="undefined" @click="sidebar.togglePin">
         <PhSidebarSimple size="24" class="color-text" :weight="sidebar.isPinned ? 'fill' : 'regular'" />

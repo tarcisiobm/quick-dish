@@ -44,4 +44,15 @@ class ReservationController extends ApiController
             throw new ApiException(__('api.reservation_conflict'));
         }
     }
+
+    public function userReservations(Request $request)
+    {
+        $reservations = $this->model::where('user_id', $request->user()->id)
+            ->with($this->with)
+            ->orderBy('reservation_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->get();
+
+        return $this->successResponse(null, $reservations);
+    }
 }

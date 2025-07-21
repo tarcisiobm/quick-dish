@@ -99,5 +99,7 @@ return [
         'items.*.additionals.*.ingredient_id' => 'ingrediente adicional',
         'items.*.additionals.*.quantity' => 'quantidade do adicional',
         'coupon_code' => 'código do cupom',
+        'rating' => 'avaliação',
+        'comment' => 'comentário',
     ],
 ];

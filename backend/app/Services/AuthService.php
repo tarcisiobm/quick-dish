@@ -51,6 +51,15 @@ class AuthService
 
         $user = Auth::user();
 
+        if (!$user->status) {
+            Auth::logout();
+            return [
+                'success' => false,
+                'message' => __('auth.inactive'),
+                'status' => 403
+            ];
+        }
+
         if (!$user->hasVerifiedEmail()) {
             return [
                 'success' => false,

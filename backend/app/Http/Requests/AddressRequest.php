@@ -23,11 +23,11 @@ class AddressRequest extends FormRequest
     {
         return match ($this->method()) {
             'PUT' => [
-                'user_id' => 'required',
-                'exists:users,id',
+                'user_id' => 'required|exists:users,id',
                 'zipcode' => 'sometimes|string|max:10',
                 'street' => 'sometimes|string|max:255',
                 'number' => 'sometimes|numeric|min:0',
+                'neighborhood' => 'sometimes|string|max:100',
                 'city' => 'sometimes|string|max:100',
                 'state' => 'sometimes|string|max:50',
                 'refference' => 'sometimes|nullable|string|max:255',
@@ -36,10 +36,11 @@ class AddressRequest extends FormRequest
                 'is_default' => 'sometimes|boolean'
             ],
             default => [
-                'user_id' => 'required','exists:users,id',
+                'user_id' => 'required|exists:users,id',
                 'zipcode' => 'required|string|max:10',
                 'street' => 'required|string|max:255',
                 'number' => 'required|numeric|min:0',
+                'neighborhood' => 'required|string|max:100',
                 'city' => 'required|string|max:100',
                 'state' => 'required|string|max:50',
                 'refference' => 'sometimes|nullable|string|max:255',
@@ -52,7 +53,6 @@ class AddressRequest extends FormRequest
 
     public function attributes(): array
     {
-
         return __('validation.attributes');
     }
 }

@@ -10,4 +10,6 @@ return [
     'paymenttype' => 'Payment type',
     'delivery' => 'Delivery',
     'order' => 'Order',
+    'coupon' => 'Coupon',
+    'review' => 'Review'
 ];

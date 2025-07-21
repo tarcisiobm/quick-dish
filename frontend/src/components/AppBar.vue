@@ -5,10 +5,12 @@ import { useI18n } from 'vue-i18n';
 import { useSidebarStore } from '@/stores/sidebar';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { PhBasket, PhUserCircle, PhPencilSimple, PhSignOut, PhCaretDown } from '@phosphor-icons/vue';
+import { useCartStore } from '@/stores/cart';
 
 const router = useRouter();
 const auth = useAuthStore();
 const sidebar = useSidebarStore();
+const cartStore = useCartStore();
 const { t } = useI18n();
 
 const isScrolled = ref(false);
@@ -35,14 +37,16 @@ onUnmounted(() => {
 
     <div class="d-flex justify-center align-center ga-4">
       <RouterLink to="/" class="nav-link color-text">Home</RouterLink>
-      <RouterLink to="/about" class="nav-link color-text">About</RouterLink>
+      <RouterLink to="/menu" class="nav-link color-text">Menu</RouterLink>
       <RouterLink to="/contact" class="nav-link color-text">Contact</RouterLink>
       <RouterLink to="/reviews" class="nav-link color-text">Reviews</RouterLink>
     </div>
 
     <div class="d-flex justify-center align-center ga-4">
-      <v-btn height="undefined" icon variant="outlined">
-        <PhBasket size="22" class="color-text_low_opacity" />
+      <v-btn height="undefined" icon variant="outlined" @click="cartStore.toggleDrawer">
+        <v-badge :content="cartStore.itemCount" :model-value="cartStore.itemCount > 0" color="primary">
+          <PhBasket size="22" class="color-text_low_opacity" />
+        </v-badge>
       </v-btn>
 
       <div v-if="!auth.isAuthenticated" class="d-flex justify-center align-center ga-4">
